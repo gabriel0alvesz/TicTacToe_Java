@@ -6,7 +6,7 @@ public class Player01Panel {
     private JLabel lblPlayer01;
     private JLabel lblAvisoP1;
     private JButton btn11;
-    private JPanel Jogo;
+    private JPanel JogoC1;
     private JButton btn12;
     private JButton btn13;
     private JButton btn21;
@@ -15,6 +15,7 @@ public class Player01Panel {
     private JButton btn31;
     private JButton btn32;
     private JButton btn34;
+    private JPanel Client1Panel;
 
     private void createUIComponents() {
         // TODO: place custom component creation code here

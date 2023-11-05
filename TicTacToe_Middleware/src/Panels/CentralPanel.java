@@ -1,11 +1,5 @@
 package Panels;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.ObjectInputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class CentralPanel extends JFrame {
     private JTextField inputP1_mw;
