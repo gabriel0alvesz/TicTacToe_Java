@@ -20,7 +20,7 @@ public class ThInput extends Thread{
                 ObjectInputStream obj_M_c2 = new ObjectInputStream(c2.getInputStream());
                 msg = obj_M_c2.readUTF();
 
-                System.out.println("C1 -> Middleware -> C2 :: " + msg);
+                System.out.println(msg);
 
                 obj_M_c2.close();
                 c2.close();

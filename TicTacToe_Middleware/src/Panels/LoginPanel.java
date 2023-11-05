@@ -13,28 +13,32 @@ public class LoginPanel extends JFrame{
     private JLabel lblNameLogin;
     private JPanel loginPanel;
 
-    int cont_comp = 0;
     public LoginPanel() {
         btnEnviarLogin.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if(inputNameLogin.getText() != null){
-                    try{
-                        while (cont_comp < 2){
-                            cont_comp++;
-                            String msg = inputNameLogin.getText();
-                            Socket cliente = new Socket("127.0.0.1", 2222);
-                            ObjectOutputStream writer = new ObjectOutputStream(cliente.getOutputStream());
-                            writer.flush();
-                            writer.writeUTF(msg);
+                // Enviando os Nomes na porta 7777.
+                try{
+                    while(true){
 
-                            writer.close();
-                            cliente.close();
-                        }
-                    }catch (Exception er){
-                        JOptionPane.showMessageDialog(null, "Erro no envio do nome no Login: " + er.getMessage());
+                        String name = inputNameLogin.getText();
+
+                        System.out.println("Nome: " + name);
+                        inputNameLogin.setText("");
+
+                        Socket env_LoginName = new Socket("127.0.0.1", 7777);
+                        ObjectOutputStream obj_envNameLogin = new ObjectOutputStream(env_LoginName.getOutputStream());
+                        obj_envNameLogin.flush();
+                        obj_envNameLogin.writeUTF(name);
+
+                        obj_envNameLogin.close();
+                        env_LoginName.close();
+
                     }
+
+                }catch (Exception ex){
+                    System.out.println("Erro ao enviar Nome de Competidor: " + ex.getMessage());
                 }
             }
         });

@@ -31,7 +31,6 @@ public class ThreadC1C2 extends Thread{
                 ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
                 obj_env.flush();
                 obj_env.writeUTF(msg_mw);
-                System.out.println("\nMenssagem enviada de C1 -> C2 passando pelo Middleware!");
 
                 // Fechando Objetos e Sockets
                 obj_env.close();
