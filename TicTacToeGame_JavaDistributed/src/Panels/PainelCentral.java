@@ -1,11 +1,15 @@
 package Panels;
 
+import Classes.JogadoresStatic;
+
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 public class PainelCentral {
     private JPanel CentralPainel;
@@ -18,11 +22,20 @@ public class PainelCentral {
     private JLabel lblNomeJogador1;
     private JLabel lblJogaador2;
     private JLabel lblNomeJogador2;
+    private JButton btnSortearSimbolos;
 
     public PainelCentral() {
         btnIniciarJogadores.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                btnIniciarJogadores.setText("Iniciado!");
+                btnIniciarJogadores.setBackground(Color.GREEN);
+                btnIniciarJogadores.revalidate();
+                btnIniciarJogadores.repaint();
+
+                btnIniciarJogadores.setEnabled(false);
+
 
                 new Thread(() -> {
                     try{
@@ -38,8 +51,10 @@ public class PainelCentral {
 
                             if(lblNomeJogador1.getText().equals("")){
                                 lblNomeJogador1.setText(nome_jogador);
+                                JogadoresStatic.NomeJogador1 = lblNomeJogador1.getText();
                             }else {
                                 lblNomeJogador2.setText(nome_jogador);
+                                JogadoresStatic.NomeJogador2 = lblNomeJogador2.getText();
                                 continue;
                             }
 
@@ -54,11 +69,38 @@ public class PainelCentral {
                         System.out.println("Erro ao receber login de Competidor: " + ex.getMessage());
                     }
                 }).start();
+            }
+        });
 
-
+        btnSortearSimbolos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnSortearSimbolos.setText("Sorteados!");
+                SortearSimbolos();
+                System.out.println("Os Simbolos Foram Sorteados");
+                btnSortearSimbolos.setEnabled(false);
+                // Apos Isso deve-se abrir os players.
             }
         });
     }
+
+    private void SortearSimbolos(){
+        Random random = new Random();
+        int numero = random.nextInt(2); // Gera 0 ou 1
+
+        if(numero == 1){
+            JogadoresStatic.simboloJ1 = 1;
+            lblNomeJogador1.setText(lblNomeJogador1.getText() + "  (X)");
+            JogadoresStatic.simboloJ2 = -1;
+            lblNomeJogador2.setText(lblNomeJogador2.getText() + "  (O)");
+        }else{
+            JogadoresStatic.simboloJ2 = 1;
+            lblNomeJogador2.setText(lblNomeJogador2.getText() + "  (X)");
+            JogadoresStatic.simboloJ1 = -1;
+            lblNomeJogador1.setText(lblNomeJogador1.getText() + "  (O)");
+        }
+    }
+
 
     public static void main(String[] args){
         JFrame frame = new JFrame("Painel Central");
