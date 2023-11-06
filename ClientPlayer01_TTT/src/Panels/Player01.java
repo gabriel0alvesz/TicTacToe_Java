@@ -1,12 +1,9 @@
 package Panels;
 
-import ThreadsClasses.Pacote;
-
 import javax.swing.*;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Player01 extends JFrame{
@@ -16,6 +13,7 @@ public class Player01 extends JFrame{
 
     public Player01(){
 
+        // recebe os dados inicias
         new Thread(() -> {
             try {
                 // Recebendo mensagem do Middleware.
@@ -25,10 +23,8 @@ public class Player01 extends JFrame{
 
                 ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
                 Map<String, String> data = (Map<String,String>) obj_M_c1.readObject();
-//                Pacote msg =  new Pacote((Pacote) obj_M_c1.readObject());
 
-                lblPlayer01.setText(data.get("Nome"));
-
+                lblPlayer01.setText(lblPlayer01.getText() + data.get("Nome"));
                 lblAvisoP1.setText(data.get("Aviso"));
 
                 obj_M_c1.close();
@@ -42,10 +38,11 @@ public class Player01 extends JFrame{
     }
 
     public static void main(String[] args){
-        Player01 cp = new Player01();
-        cp.setContentPane(cp.player01Panel);
-        cp.setTitle("Player 1");
-        cp.setSize(300, 300);
-        cp.setVisible(true);
+        Player01 p1 = new Player01();
+        p1.setContentPane(p1.player01Panel);
+        p1.setTitle("Player 1");
+        p1.setSize(300, 300);
+        p1.setVisible(true);
+        p1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

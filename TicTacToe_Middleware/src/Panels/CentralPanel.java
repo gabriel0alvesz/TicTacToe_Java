@@ -1,8 +1,6 @@
 package Panels;
-import Classes.Pacote;
 
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,30 +24,30 @@ public class CentralPanel extends JFrame {
     private JLabel lblNameP2_mw;
     private JButton btnIniciarP2;
     private JButton btnIniciarExpectador;
-    private JButton btnComeçarGame;
+    private JButton btnComecarGame;
 
+    Map<String, String> data1 = new HashMap<>();
+    Map<String, String> data2 = new HashMap<>();
 
     public CentralPanel() {
-        Pacote c1pack = new Pacote();
-        Pacote c2pack = new Pacote();
-
         btnIniciarP1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                btnIniciarP1.setBackground(Color.GREEN);
+                btnIniciarP1.setText("Iniciado!");
 
                 try{
-                    btnIniciarP1.setBackground(Color.GREEN);
-                    btnIniciarP1.setText("Iniciado!");
-
                     ServerSocket rec_NameLoginC1 = new ServerSocket(7777);
                     Socket nameC1 = rec_NameLoginC1.accept();
                     System.out.println("Login 1 sendo realizado...");
 
                     ObjectInputStream obj_recNameLoginC1 = new ObjectInputStream(nameC1.getInputStream());
 
-                    c1pack.nome_competidor = obj_recNameLoginC1.readUTF();
-                    c1pack.simbolo = 1;
-                    lblNameP1_mw.setText(c1pack.nome_competidor + "  (X)");
+                    data1.put("Nome", obj_recNameLoginC1.readUTF());
+                    data1.put("Aviso", "Você Começa!");
+                    data1.put("Simbolo", "X");
+
+                    lblNameP1_mw.setText(data1.get("Nome") + "  (X)");
 
                     obj_recNameLoginC1.close();
                     nameC1.close();
@@ -64,10 +62,9 @@ public class CentralPanel extends JFrame {
         btnIniciarP2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                btnIniciarP2.setBackground(Color.GREEN);
+                btnIniciarP2.setText("Iniciado!");
                 try{
-                    btnIniciarP2.setBackground(Color.GREEN);
-                    btnIniciarP2.setText("Iniciado!");
 
                     ServerSocket rec_NameLoginC2 = new ServerSocket(7777);
                     Socket nameC2 = rec_NameLoginC2.accept();
@@ -75,9 +72,11 @@ public class CentralPanel extends JFrame {
 
                     ObjectInputStream obj_recNameLoginC2 = new ObjectInputStream(nameC2.getInputStream());
 
-                    c2pack.nome_competidor = obj_recNameLoginC2.readUTF();
-                    c2pack.simbolo = -1;
-                    lblNameP2_mw.setText(c2pack.nome_competidor + "  (O)");
+                    data2.put("Nome", obj_recNameLoginC2.readUTF());
+                    data2.put("Aviso", "Espere sua Vez");
+                    data2.put("Simbolo", "O");
+
+                    lblNameP2_mw.setText(data2.get("Nome") + "  (O)");
 
                     obj_recNameLoginC2.close();
                     nameC2.close();
@@ -89,11 +88,11 @@ public class CentralPanel extends JFrame {
             }
         });
 
-        btnComeçarGame.addActionListener(new ActionListener() {
+        btnComecarGame.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                btnComecarGame.setBackground(Color.BLACK);
                 new Thread(() -> {
-
                     try {
                         //Cria Sockets
                         Socket Sc1 = new Socket("127.0.0.1",4000); // envia para o competidor 1
@@ -102,14 +101,6 @@ public class CentralPanel extends JFrame {
                         // Cria objeto para envio
                         ObjectOutputStream obj_c1 = new ObjectOutputStream(Sc1.getOutputStream());
                         ObjectOutputStream obj_c2 = new ObjectOutputStream(Sc2.getOutputStream());
-
-                        Map<String, String> data1 = new HashMap<>();
-                        Map<String, String> data2 = new HashMap<>();
-                        data1.put("Nome", c1pack.nome_competidor);
-                        data2.put("Nome", c2pack.nome_competidor);
-
-                        data1.put("Aviso", "Voce Começa!");
-                        data2.put("Aviso", "Espere a sua Vez!");
 
                         obj_c1.flush();
                         obj_c2.flush();

@@ -1,7 +1,6 @@
 package Panels;
 
 import javax.swing.*;
-import ThreadsClasses.Pacote;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,7 +23,7 @@ public class Player02 extends JFrame {
                 Map<String, String> data = (Map<String,String>) obj_M_c2.readObject();
 //                Pacote msg =  new Pacote((Pacote) obj_M_c2.readObject());
 
-                lblPlayer02.setText(data.get("Nome"));
+                lblPlayer02.setText(lblPlayer02.getText() + data.get("Nome"));
 
                 lblAvisoP2.setText(data.get("Aviso"));
 
@@ -39,10 +38,11 @@ public class Player02 extends JFrame {
     }
 
     public static void main(String[] args){
-        Player02 cp = new Player02();
-        cp.setContentPane(cp.player02Panel);
-        cp.setTitle("Player 2");
-        cp.setSize(300, 300);
-        cp.setVisible(true);
+        Player02 p2 = new Player02();
+        p2.setContentPane(p2.player02Panel);
+        p2.setTitle("Player 2");
+        p2.setSize(300, 300);
+        p2.setVisible(true);
+        p2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

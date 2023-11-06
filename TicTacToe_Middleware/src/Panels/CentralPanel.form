@@ -95,7 +95,7 @@
           <text value="Iniciar"/>
         </properties>
       </component>
-      <component id="26f48" class="javax.swing.JButton" binding="btnComeçarGame">
+      <component id="26f48" class="javax.swing.JButton" binding="btnComecarGame">
         <constraints>
           <grid row="1" column="3" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
