@@ -1,17 +1,17 @@
 package Panels;
-import Classes.EnumMSG;
 import Classes.Pacote;
-import Classes.Tools;
 
 import javax.swing.*;
+import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CentralPanel extends JFrame {
     private JTextField inputP1_mw;
@@ -26,28 +26,30 @@ public class CentralPanel extends JFrame {
     private JLabel lblNameP2_mw;
     private JButton btnIniciarP2;
     private JButton btnIniciarExpectador;
+    private JButton btnComeçarGame;
+
 
     public CentralPanel() {
-
         Pacote c1pack = new Pacote();
+        Pacote c2pack = new Pacote();
+
         btnIniciarP1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if(btnIniciarP1.isSelected()){
-
+                try{
                     btnIniciarP1.setBackground(Color.GREEN);
                     btnIniciarP1.setText("Iniciado!");
-                }
-                try{
+
                     ServerSocket rec_NameLoginC1 = new ServerSocket(7777);
                     Socket nameC1 = rec_NameLoginC1.accept();
                     System.out.println("Login 1 sendo realizado...");
 
                     ObjectInputStream obj_recNameLoginC1 = new ObjectInputStream(nameC1.getInputStream());
-                    lblNameP1_mw.setText(obj_recNameLoginC1.readUTF());
 
                     c1pack.nome_competidor = obj_recNameLoginC1.readUTF();
+                    c1pack.simbolo = 1;
+                    lblNameP1_mw.setText(c1pack.nome_competidor + "  (X)");
 
                     obj_recNameLoginC1.close();
                     nameC1.close();
@@ -59,21 +61,23 @@ public class CentralPanel extends JFrame {
             }
         });
 
-        Pacote c2pack = new Pacote();
         btnIniciarP2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnIniciarP2.setBackground(Color.GREEN);
-                btnIniciarP2.setText("Iniciado!");
+
                 try{
+                    btnIniciarP2.setBackground(Color.GREEN);
+                    btnIniciarP2.setText("Iniciado!");
+
                     ServerSocket rec_NameLoginC2 = new ServerSocket(7777);
                     Socket nameC2 = rec_NameLoginC2.accept();
                     System.out.println("Login 2 sendo realizado...");
 
                     ObjectInputStream obj_recNameLoginC2 = new ObjectInputStream(nameC2.getInputStream());
-                    lblNameP2_mw.setText(obj_recNameLoginC2.readUTF());
 
                     c2pack.nome_competidor = obj_recNameLoginC2.readUTF();
+                    c2pack.simbolo = -1;
+                    lblNameP2_mw.setText(c2pack.nome_competidor + "  (O)");
 
                     obj_recNameLoginC2.close();
                     nameC2.close();
@@ -85,45 +89,46 @@ public class CentralPanel extends JFrame {
             }
         });
 
-        // Verifica quem Começa.
-        Tools.shuffle(c1pack, c2pack);
+        btnComeçarGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(() -> {
 
-        if(c1pack.simbolo == 1){
-            lblNameP1_mw.setText(lblNameP1_mw.getText() + "  (X)");
-            lblNameP2_mw.setText(lblNameP2_mw.getText() + "  (O)");
-        }else{
-            lblNameP1_mw.setText(lblNameP1_mw.getText() + "  (O)");
-            lblNameP2_mw.setText(lblNameP2_mw.getText() + "  (X)");
-        }
+                    try {
+                        //Cria Sockets
+                        Socket Sc1 = new Socket("127.0.0.1",4000); // envia para o competidor 1
+                        Socket Sc2 = new Socket("127.0.0.1",6000); // envia para o competidor 2
 
-        new Thread(() -> {
+                        // Cria objeto para envio
+                        ObjectOutputStream obj_c1 = new ObjectOutputStream(Sc1.getOutputStream());
+                        ObjectOutputStream obj_c2 = new ObjectOutputStream(Sc2.getOutputStream());
 
-            try {
-                //Cria Sockets
-                Socket Sc1 = new Socket("127.0.0.1",5000); // envia para o competidor 1
-                Socket Sc2 = new Socket("127.0.0.1",6000); // envia para o competidor 2
+                        Map<String, String> data1 = new HashMap<>();
+                        Map<String, String> data2 = new HashMap<>();
+                        data1.put("Nome", c1pack.nome_competidor);
+                        data2.put("Nome", c2pack.nome_competidor);
 
-                // Cria objeto para envio
-                ObjectOutputStream obj_c1 = new ObjectOutputStream(Sc1.getOutputStream());
-                ObjectOutputStream obj_c2 = new ObjectOutputStream(Sc2.getOutputStream());
+                        data1.put("Aviso", "Voce Começa!");
+                        data2.put("Aviso", "Espere a sua Vez!");
 
-                obj_c1.flush();
-                obj_c2.flush();
-                obj_c1.writeObject(c1pack);
-                obj_c2.writeObject(c2pack);
+                        obj_c1.flush();
+                        obj_c2.flush();
+                        obj_c1.writeObject(data1);
+                        obj_c2.writeObject(data2);
 
-                // Fecha tudo!
-                obj_c1.close();
-                obj_c2.close();
-                Sc1.close();
-                Sc2.close();
+                        // Fecha tudo!
+                        obj_c1.close();
+                        obj_c2.close();
+                        Sc1.close();
+                        Sc2.close();
 
-            } catch (Exception ex) {
-                System.out.println("Erro ao enviar pacotes Iniciais: " + ex.getMessage());
+                    } catch (Exception ex) {
+                        System.out.println("Erro ao enviar pacotes Iniciais: " + ex.getMessage());
+                    }
+
+                }).start();
             }
-
-        }).start();
-
+        });
     }
 
     public static void main(String[] args) {
@@ -133,5 +138,6 @@ public class CentralPanel extends JFrame {
         cp.setTitle("Entrada de Participantes");
         cp.setSize(400, 200);
         cp.setVisible(true);
+        cp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

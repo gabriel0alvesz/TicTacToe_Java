@@ -18,23 +18,22 @@ public class LoginPanel extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                int i = 0;
                 // Enviando os Nomes na porta 7777.
                 try{
-                    while(true){
-
+                    while(i < 3){
+                        i++;
                         String name = inputNameLogin.getText();
-
-                        System.out.println("Nome: " + name);
-                        inputNameLogin.setText("");
 
                         Socket env_LoginName = new Socket("127.0.0.1", 7777);
                         ObjectOutputStream obj_envNameLogin = new ObjectOutputStream(env_LoginName.getOutputStream());
                         obj_envNameLogin.flush();
                         obj_envNameLogin.writeUTF(name);
 
+                        inputNameLogin.setText("");
+
                         obj_envNameLogin.close();
                         env_LoginName.close();
-
                     }
 
                 }catch (Exception ex){
@@ -51,5 +50,6 @@ public class LoginPanel extends JFrame{
         lp.setTitle("Login de participantes");
         lp.setSize(400, 200);
         lp.setVisible(true);
+        lp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
