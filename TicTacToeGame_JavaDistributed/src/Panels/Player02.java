@@ -24,10 +24,7 @@ public class Player02 {
     private JButton button33;
     private JPanel panelP2;
 
-    String simboloJogador2 = "O";
-    int simbolo_int = -1;
-
-    String simbolo_str = String.valueOf(simbolo_int);
+    private String simbolo_str = "-1";
 
     JButton[] ListaDeBotoes = {
             button11, button12, button13,
@@ -50,41 +47,42 @@ public class Player02 {
         new Thread(() -> {
             try {
                 Jogador2 = new Cliente(8888);
-                DesabilitaHabilitaBotoes(false);
             }catch (Exception ex){
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
-
             }
 
             // Iniciando Jogador 2
             try{
-//                DesabilitaHabilitaBotoes(false);
                 Map<String, String> pacoteJ2;
+                DesabilitaHabilitaBotoes(false);
 
                 while(true){
-                    pacoteJ2 = Jogador2.RecebeMapPacote();
+                    pacoteJ2 = new HashMap<>(Jogador2.RecebeMapPacote());
+
                     String aviso = pacoteJ2.get("aviso");
+
+                    lblAviso.setText(aviso);
 
                     if (Objects.equals(aviso, "Você Começa!") || Objects.equals(aviso, "Sua Vez!")) {
 
-                        DesabilitaHabilitaBotoes(true);
-
-                        if (Objects.equals(aviso, "Sua vez!")) {
+                        if (Objects.equals(aviso, "Sua Vez!")) {
+                            TempPrintPlayer(pacoteJ2);
                             MarcaJogada(pacoteJ2);
                         }
+
+                        DesabilitaHabilitaBotoes(true);
+
                     } else {
-                        pacoteJ2.replace("aviso", "Você Começa!");
-
+                        pacoteJ2.put("aviso", "Você Começa!");
                         Jogador2.EnviaMapPacote(pacoteJ2);
-
                         DesabilitaHabilitaBotoes(false);
                         mostraMensagem(pacoteJ2);
                     }
                 }
             }catch (Exception ex){
-                System.out.println("Erro no Jogador 1: " + ex.getMessage());
+                System.out.println("Erro no Jogador 2: " + ex.getMessage());
             }
-        });
+        }).start();
 
     }
 
@@ -99,7 +97,7 @@ public class Player02 {
         String linha = pacote.get("linha");
         String coluna = pacote.get("coluna");
         String botao = linha + coluna;
-        String simbolo = simboloJogador2;
+        String simbolo = QualSimbolo(pacote);
 
         switch (botao) {
             case "11" -> button11.setText(simbolo);
@@ -139,6 +137,7 @@ public class Player02 {
                 Jogador2.EnviaMapPacote(pacote);
                 MarcaJogada(pacote);
                 DesabilitaHabilitaBotoes(false);
+                lblAviso.setText("Espere sua vez novamente!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -163,10 +162,24 @@ public class Player02 {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Jogador 1");
+        JFrame frame = new JFrame("Jogador 2");
         frame.setContentPane(new Player02().panelP2);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
+
+    private void TempPrintPlayer(Map<String, String> p){
+        System.out.println(p.get("linha")+","+p.get("coluna") + " / " + QualSimbolo(p) + "\taviso: " + p.get("aviso"));
+    }
+
+    private String QualSimbolo(Map<String, String> p){
+        if(Objects.equals(p.get("simbolo"), "1")){
+            return "X";
+        }else if(Objects.equals(p.get("simbolo"), "-1")){
+            return "O";
+        }
+        return "-";
+    }
+
 }

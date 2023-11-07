@@ -24,11 +24,7 @@ public class Player01 {
     private JButton button33;
     private JPanel panelP1;
 
-    String simboloJogador1 = "X";
-    int simbolo_int = 1;
-
-    String simbolo_str = String.valueOf(simbolo_int);
-
+    private String simbolo_str = "1";
 
     JButton[] ListaDeBotoes = {
             button11, button12, button13,
@@ -36,7 +32,10 @@ public class Player01 {
             button31, button32, button33
     };
     private Cliente Jogador1;
+
     public Player01(){
+
+
 
         button11.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "1"); pacote.put("coluna", "1");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
         button12.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "1"); pacote.put("coluna", "2");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
@@ -51,7 +50,7 @@ public class Player01 {
         new Thread(() -> {
             try {
                 Jogador1 = new Cliente(7777);
-            }catch (Exception ex){
+            }catch (IOException ex){
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
                 ex.printStackTrace();
             }
@@ -61,19 +60,24 @@ public class Player01 {
                 Map<String, String> pacoteJ1;
                 DesabilitaHabilitaBotoes(false);
                 while(true){
-                    pacoteJ1 = Jogador1.RecebeMapPacote();
+                    pacoteJ1 = new HashMap<>(Jogador1.RecebeMapPacote());
+
+
                     String aviso = pacoteJ1.get("aviso");
-//                    lblAviso.setText(aviso);
+
+                    lblAviso.setText(aviso);
 
                     if (Objects.equals(aviso, "Você Começa!") || Objects.equals(aviso, "Sua Vez!")) {
 
-                        DesabilitaHabilitaBotoes(true);
-
-                        if (Objects.equals(aviso, "Sua vez!")) {
+                        if (Objects.equals(aviso, "Sua Vez!")) {
+                            TempPrintPlayer(pacoteJ1);
                             MarcaJogada(pacoteJ1);
                         }
+
+                        DesabilitaHabilitaBotoes(true);
+
                     } else {
-                        pacoteJ1.replace("aviso", "Você Começa!");
+                        pacoteJ1.put("aviso", "Você Começa!");
                         Jogador1.EnviaMapPacote(pacoteJ1);
                         DesabilitaHabilitaBotoes(false);
                         mostraMensagem(pacoteJ1);
@@ -82,8 +86,7 @@ public class Player01 {
             }catch (Exception ex){
                 System.out.println("Erro no Jogador 1: " + ex.getMessage());
             }
-        });
-
+        }).start();
     }
 
     private void DesabilitaHabilitaBotoes(boolean cod){
@@ -97,7 +100,7 @@ public class Player01 {
         String linha = pacote.get("linha");
         String coluna = pacote.get("coluna");
         String botao = linha + coluna;
-        String simbolo = simboloJogador1;
+        String simbolo = QualSimbolo(pacote);
 
         switch (botao) {
             case "11" -> button11.setText(simbolo);
@@ -116,7 +119,6 @@ public class Player01 {
         String linha = pacote.get("linha");
         String coluna = pacote.get("coluna");
         String botao = linha + coluna;
-//        System.out.println(botao);
 
         return switch (botao) {
             case "11" -> Objects.equals(button11.getText(), "-");
@@ -133,12 +135,12 @@ public class Player01 {
     }
 
     private void FazJogada(Map<String, String> pacote) {
-//        System.out.println(pacote.get("linha") + "," + pacote.get("coluna"));
         if (ValidaJogada(pacote)) {
             try {
                 Jogador1.EnviaMapPacote(pacote);
                 MarcaJogada(pacote);
                 DesabilitaHabilitaBotoes(false);
+                lblAviso.setText("Espere sua vez novamente!");
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "Error ao Enviar pacote jogada Jogador 1" + e.getMessage());
             }
@@ -168,5 +170,18 @@ public class Player01 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public void TempPrintPlayer(Map<String, String> p){
+        System.out.println(p.get("linha")+","+p.get("coluna") + " / " + QualSimbolo(p) + "\taviso: " + p.get("aviso"));
+    }
+
+    private String QualSimbolo(Map<String, String> p){
+        if(Objects.equals(p.get("simbolo"), "1")){
+            return "X";
+        }else if(Objects.equals(p.get("simbolo"), "-1")){
+            return "O";
+        }
+        return "-";
     }
 }

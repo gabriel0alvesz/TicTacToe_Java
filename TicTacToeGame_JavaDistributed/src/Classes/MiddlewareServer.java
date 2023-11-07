@@ -21,11 +21,10 @@ public class MiddlewareServer {
 
     public MiddlewareServer() throws IOException, ClassNotFoundException {
         iniciaServidores();
-//        JOptionPane.showMessageDialog(null,"Servidor TCP em Execução");
     }
 
     private void iniciaServidores() throws IOException {
-        // Jogador 1
+
         ServerSocket servidorP1 = new ServerSocket(7777);
         Player1 = servidorP1.accept();
 //        JOptionPane.showMessageDialog(null, "Player 1, conectou!");

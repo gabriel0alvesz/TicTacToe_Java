@@ -1,5 +1,4 @@
 package Classes;
-
 import javax.swing.*;
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Game {
-
     private final int[][] Tabuleiro = {
             {0, 0, 0},
             {0, 0, 0},
@@ -18,9 +16,18 @@ public class Game {
 
     public Game() throws IOException, ClassNotFoundException {
         MiddlewareServer servidor = new MiddlewareServer();
+
+        if(servidor != null){
+            System.out.println("Servidor On");
+        }
         jogadorAtual = "X";
 
         Map<String, String> pacote = new HashMap<>();
+        pacote.put("aviso", "Você Começa!");
+        pacote.put("linha", "-1");
+        pacote.put("coluna", "-1");
+        pacote.put("simbolo", "0");
+
         String msg_retorno;
 
         int flag_partida = JOptionPane.YES_OPTION;
@@ -29,25 +36,26 @@ public class Game {
         while(i < 9 || Objects.equals(flag_partida, JOptionPane.YES_OPTION)){
             i++;
 
-            pacote = servidor.MensagemPara(pacote, jogadorAtual);
+            pacote = new HashMap<>(servidor.MensagemPara(pacote, jogadorAtual));
             msg_retorno = VerificaJogada(pacote);
 
             if(Objects.equals(msg_retorno, "Sua Vez!")){
                 TrocaDeJogador();
             }else if(Objects.equals(msg_retorno, "Você Ganhou!")){
-                pacote.replace("aviso", "Você Ganhou!");
-                pacote = servidor.MensagemPara(pacote, jogadorAtual);
-
-                JOptionPane.showMessageDialog(null, "Jogo Encerrado, " + jogadorAtual + "GANHOU!");
+                pacote.put("aviso", "Você Ganhou!");
+                JOptionPane.showMessageDialog(null, "Jogo Encerrado, " + jogadorAtual + " GANHOU!");
+                pacote = new HashMap<>(servidor.MensagemPara(pacote, jogadorAtual));
                 flag_partida = JOptionPane.CLOSED_OPTION;
             }
 
             if (i == 8) {
-                pacote.replace("aviso", "Deu Velha!");
-                pacote = servidor.MensagemPara(pacote, jogadorAtual);
+                pacote.put("aviso", "Deu Velha!");
+                pacote = new HashMap<>(servidor.MensagemPara(pacote, jogadorAtual));
                 JOptionPane.showMessageDialog(null, "Deu Velha!");
                 flag_partida = JOptionPane.CLOSED_OPTION;
             }
+
+            printMatrix(Tabuleiro);
         }
 
         servidor.FinalizaMiddleware();
@@ -62,8 +70,8 @@ public class Game {
     }
 
     public String VerificaJogada(Map<String, String> pacote) {
-        int c = Integer.parseInt(pacote.get("coluna"));
-        int l = Integer.parseInt(pacote.get("linha"));
+        int c = Integer.parseInt(pacote.get("coluna")) - 1;
+        int l = Integer.parseInt(pacote.get("linha")) - 1;
         int s = Integer.parseInt(pacote.get("simbolo"));
         int somaLinha = 0;
         int somaColuna = 0;
@@ -98,6 +106,16 @@ public class Game {
             somaColuna = 0;
         }
         return "Sua Vez!";
+    }
+
+    private void printMatrix(int[][] matrix) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     public static void main(String[] args) {
