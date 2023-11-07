@@ -24,7 +24,7 @@ public class Player01 {
     private JButton button33;
     private JPanel panelP1;
 
-    private String simbolo_str = "1";
+    private String simbolo_str;
 
     JButton[] ListaDeBotoes = {
             button11, button12, button13,
@@ -32,10 +32,8 @@ public class Player01 {
             button31, button32, button33
     };
     private Cliente Jogador1;
-
+    private Map<String, String> inicial = null;
     public Player01(){
-
-
 
         button11.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "1"); pacote.put("coluna", "1");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
         button12.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "1"); pacote.put("coluna", "2");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
@@ -48,12 +46,30 @@ public class Player01 {
         button33.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "3"); pacote.put("coluna", "3");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
 
         new Thread(() -> {
+            // Iniciando cliente recebendo pacote inicial do jogador
             try {
                 Jogador1 = new Cliente(7777);
-            }catch (IOException ex){
+//                Map<String, String> pacoteJ1;
+//                DesabilitaHabilitaBotoes(false);
+//                while(true){
+//
+//                    pacoteJ1 = new HashMap<>(Jogador1.RecebeMapPacote());
+//                    System.out.println("RECEBEU O PACOTE!");
+//                    System.out.println(pacoteJ1.get("nome1") + " -> " + pacoteJ1.get("simbolo1"));
+//                    System.out.println(pacoteJ1.get("nome2") + " -> " + pacoteJ1.get("simbolo2"));
+//                    System.out.println(pacoteJ1.get("aviso"));
+//                    break;
+//                }
+//
+//                System.out.println("Saiu do While P1");
+
+            }catch (IOException ex) {
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
                 ex.printStackTrace();
             }
+//            } catch (ClassNotFoundException e) {
+//                throw new RuntimeException(e);
+//            }
 
             // Iniciando Jogador 1
             try{
@@ -61,10 +77,10 @@ public class Player01 {
                 DesabilitaHabilitaBotoes(false);
                 while(true){
                     pacoteJ1 = new HashMap<>(Jogador1.RecebeMapPacote());
-
-
+                    System.out.println("RECEBEU O PACOTE!");
+                    simbolo_str = pacoteJ1.get("simbolo1");
                     String aviso = pacoteJ1.get("aviso");
-
+                    lblNomeJogador.setText(pacoteJ1.get("nome1"));
                     lblAviso.setText(aviso);
 
                     if (Objects.equals(aviso, "Você Começa!") || Objects.equals(aviso, "Sua Vez!")) {

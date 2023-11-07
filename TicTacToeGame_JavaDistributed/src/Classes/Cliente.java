@@ -11,14 +11,14 @@ public class Cliente {
     private final int porta;
     private ObjectInputStream input;
     private ObjectOutputStream output;
-
+    private Socket client;
     public Cliente(int porta) throws IOException {
         this.porta = porta;
         IniciaCliente();
     }
 
     private void IniciaCliente() throws IOException {
-        Socket client = new Socket("127.0.0.1", porta);
+        client = new Socket("127.0.0.1", porta);
         input = new ObjectInputStream(client.getInputStream());
         output = new ObjectOutputStream(client.getOutputStream());
     }
@@ -35,4 +35,11 @@ public class Cliente {
     public void EnviaMapPacote(Map<String, String> pacote) throws IOException {
         output.writeObject(pacote);
     }
+
+    public void FechaCliente() throws IOException {
+        input.close();
+        output.close();
+        client.close();
+    }
+
 }

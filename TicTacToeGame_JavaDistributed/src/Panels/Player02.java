@@ -32,6 +32,9 @@ public class Player02 {
             button31, button32, button33
     };
     private Cliente Jogador2;
+
+    private Map<String, String> inicial;
+
     public Player02(){
 
         button11.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "1"); pacote.put("coluna", "1");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
@@ -45,8 +48,22 @@ public class Player02 {
         button33.addActionListener(ActionEvent -> {Map<String, String> pacote = new HashMap<>();pacote.put("linha", "3"); pacote.put("coluna", "3");pacote.put("aviso", "Sua Vez!");pacote.put("simbolo", simbolo_str);FazJogada(pacote);});
 
         new Thread(() -> {
+            // Iniciando cliente recebendo pacote inicial do jogador
             try {
                 Jogador2 = new Cliente(8888);
+//                Map<String, String> pacoteJ1;
+//                DesabilitaHabilitaBotoes(false);
+//                while(true){
+//
+//                    pacoteJ1 = new HashMap<>(Jogador2.RecebeMapPacote());
+//                    System.out.println("RECEBEU O PACOTE!");
+//                    System.out.println(pacoteJ1.get("nome1") + " -> " + pacoteJ1.get("simbolo1"));
+//                    System.out.println(pacoteJ1.get("nome2") + " -> " + pacoteJ1.get("simbolo2"));
+//                    System.out.println(pacoteJ1.get("aviso"));
+//                    break;
+//                }
+//
+//                System.out.println("Saiu do While P1");
             }catch (Exception ex){
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
             }
@@ -58,9 +75,10 @@ public class Player02 {
 
                 while(true){
                     pacoteJ2 = new HashMap<>(Jogador2.RecebeMapPacote());
-
+                    System.out.println("RECEBEU O PACOTE!");
+                    simbolo_str = pacoteJ2.get("simbolo2");
                     String aviso = pacoteJ2.get("aviso");
-
+                    lblNomeJogador.setText(pacoteJ2.get("nome2"));
                     lblAviso.setText(aviso);
 
                     if (Objects.equals(aviso, "Você Começa!") || Objects.equals(aviso, "Sua Vez!")) {

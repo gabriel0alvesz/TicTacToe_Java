@@ -7,8 +7,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class PainelCentral {
@@ -93,12 +96,29 @@ public class PainelCentral {
             lblNomeJogador1.setText(lblNomeJogador1.getText() + "  (X)");
             JogadoresStatic.simboloJ2 = -1;
             lblNomeJogador2.setText(lblNomeJogador2.getText() + "  (O)");
-        }else{
+        }else if(numero == 0){
             JogadoresStatic.simboloJ2 = 1;
             lblNomeJogador2.setText(lblNomeJogador2.getText() + "  (X)");
             JogadoresStatic.simboloJ1 = -1;
             lblNomeJogador1.setText(lblNomeJogador1.getText() + "  (O)");
         }
+
+        Map<String, String> DadosIniciais = new HashMap<>();
+
+        DadosIniciais.put("nome1", JogadoresStatic.NomeJogador1);
+        DadosIniciais.put("simbolo1", String.valueOf(JogadoresStatic.simboloJ1));
+
+        DadosIniciais.put("nome2", JogadoresStatic.NomeJogador2);
+        DadosIniciais.put("simbolo2", String.valueOf(JogadoresStatic.simboloJ2));
+
+        try{
+            Socket painel_game = new Socket("127.0.0.1",2323);
+            ObjectOutputStream output = new ObjectOutputStream(painel_game.getOutputStream());
+            output.writeObject(DadosIniciais);
+        }catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
+
     }
 
 

@@ -19,24 +19,23 @@ public class MiddlewareServer {
     private ObjectInputStream inputP2;
     private ObjectOutputStream outputP2;
 
-    public MiddlewareServer() throws IOException, ClassNotFoundException {
-        iniciaServidores();
-    }
+    public MiddlewareServer(){}
+    public MiddlewareServer(int portX, int portO) throws IOException, ClassNotFoundException {
 
-    private void iniciaServidores() throws IOException {
+        ServerSocket servidorP1 = new ServerSocket(portX);
+        ServerSocket servidorP2 = new ServerSocket(portO);
 
-        ServerSocket servidorP1 = new ServerSocket(7777);
         Player1 = servidorP1.accept();
-//        JOptionPane.showMessageDialog(null, "Player 1, conectou!");
+        JOptionPane.showMessageDialog(null, "Player 1, conectou!");
         outputP1 = new ObjectOutputStream(Player1.getOutputStream());
         inputP1 = new ObjectInputStream(Player1.getInputStream());
 
         // Jogador 2
-        ServerSocket servidorP2 = new ServerSocket(8888);
         Player2 = servidorP2.accept();
-//        JOptionPane.showMessageDialog(null, "Player 2, conectou!");
+        JOptionPane.showMessageDialog(null, "Player 2, conectou!");
         outputP2 = new ObjectOutputStream(Player2.getOutputStream());
         inputP2 = new ObjectInputStream(Player2.getInputStream());
+//        JOptionPane.showMessageDialog(null,"Servidor TCP em Execução");
     }
 
     public void FinalizaMiddleware() throws IOException {
@@ -62,15 +61,42 @@ public class MiddlewareServer {
 
     public Map<String, String> MensagemPara(Map<String, String> pacote, String jogadorAtual) throws IOException, ClassNotFoundException {
         Map<String, String> e = null;
+        System.out.println("Entra no mensagem para!");
 
         if (Objects.equals(jogadorAtual, "X")) {
-            e = MensagemParaJ1(pacote);
+            System.out.println("Entrou no Object atual jogador X -->");
+            if(Objects.equals(pacote.get("simbolo1"), "1")){
+                System.out.println("Enviando para jogador 1");
+                e = MensagemParaJ1(pacote);
+            }else if (Objects.equals(pacote.get("simbolo2"), "1")){
+                System.out.println("Enviando para jogador 2");
+                e = MensagemParaJ2(pacote);
+            }
         } else if (Objects.equals(jogadorAtual, "O")) {
-            e = MensagemParaJ2(pacote);
+            System.out.println("Entrou no Object atual jogador O --> ");
+            if(Objects.equals(pacote.get("simbolo1"), "-1")){
+                System.out.println("Enviando para jogador 1");
+                e = MensagemParaJ1(pacote);
+            } else if (Objects.equals(pacote.get("simbolo2"), "-1")) {
+                System.out.println("Enviando para jogador 2");
+                e = MensagemParaJ2(pacote);
+            }
         }
+
+        System.out.println(pacote.get("nome1") + " -> " + pacote.get("simbolo1"));
+        System.out.println(pacote.get("nome2") + " -> " + pacote.get("simbolo2"));
+
         return e;
     }
 
+    private String QualSimbolo(Map<String, String> p){
+        if(Objects.equals(p.get("simbolo"), "1")){
+            return "X";
+        }else if(Objects.equals(p.get("simbolo"), "-1")){
+            return "O";
+        }
+        return "-";
+    }
 
 
 }
