@@ -42,6 +42,7 @@ public class PanelDeLogin {
 
     public static void main(String[] args){
         JFrame frame = new JFrame("Painel de Login");
+        frame.setSize(300,300);
         frame.setContentPane(new PanelDeLogin().loginPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
