@@ -77,8 +77,7 @@ public class Player02 {
 
                     if(!pacote_recebimento.isEmpty()){
 
-                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
-                                || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+                        if( Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez") || Objects.equals(pacote_recebimento.get("aviso"), "Você Perdeu")){
 
                             DesabilitaHabilitaBotoes(true);
 
@@ -86,6 +85,8 @@ public class Player02 {
                                 System.out.println("Entrou na sua Vez!");
                                 MarcaJogada(pacote_recebimento);
                                 DefineStatusDoBotao(pacote_recebimento);
+
+                                lblAviso.setText(pacote_recebimento.get("aviso"));
                             }
 
                             if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){

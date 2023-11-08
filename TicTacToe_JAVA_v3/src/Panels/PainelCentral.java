@@ -163,9 +163,8 @@ public class PainelCentral {
                         try{
                             ServerSocket SSc1_c2 = new ServerSocket(2000); // recebe de C1
                             while(true){
-//                                System.out.println("\nEsperando Mensagem do C1...");
                                 Socket c1_c2 = SSc1_c2.accept();
-//                                System.out.println("Menssagem de C1 recebida");
+
                                 ObjectInputStream obj_rec = new ObjectInputStream(c1_c2.getInputStream());
                                 Map<String, String> msg_c1_mw = (Map<String,String>) obj_rec.readObject();
 
@@ -173,13 +172,19 @@ public class PainelCentral {
                                     // LOGICA PARA VERIFICAR A JOGADA
                                     String msg_retorno = VerificaJogada(msg_c1_mw);
 
+                                    if(contador == 8){
+                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                        break;
+                                    }
                                     if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
                                         System.out.println("\nC1 -> C2");
                                         printMatrix(Tabuleiro);
                                         Socket env = new Socket("127.0.0.1", 3001); // abre para enviar para C2
 
-                                        if(Objects.equals((msg_retorno), "Você Ganhou")){
-                                            msg_c1_mw.put("aviso", "Você Ganhou");
+                                        if(Objects.equals((msg_retorno), "Você Ganhou")){ // QUem ganhou foi o jogador 1
+                                            msg_c1_mw.put("aviso", "Você Perdeu");
+
+                                            JOptionPane.showMessageDialog(null, "O Vencedor foi o Jogador 1" );
                                         }
 
                                         ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
@@ -193,9 +198,6 @@ public class PainelCentral {
                                         System.out.println("Erro ao Enviar pacote de C1 -> MW -> C2");
                                     }
 
-                                    if(contador == 8){
-                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
-                                    }
                                 }else {
                                     System.out.println("Pacote recebido de C1 é null");
                                 }
@@ -224,13 +226,18 @@ public class PainelCentral {
                                     // LOGICA PARA VERIFICAR A JOGADA
                                     String msg_retorno = VerificaJogada(msg_c2_mw);
 
+                                    if(contador == 8){
+                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                    }
+
                                     if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
                                         System.out.println("\nC2 -> C1");
                                         printMatrix(Tabuleiro);
                                         Socket env = new Socket("127.0.0.1", 2001);
 
                                         if(Objects.equals((msg_retorno), "Você Ganhou")){
-                                            msg_c2_mw.put("aviso", "Você Ganhou");
+                                            msg_c2_mw.put("aviso", "Você Perdeu");
+                                            JOptionPane.showMessageDialog(null, "O Vencedor foi o Jogador 2" );
                                         }
 
                                         ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
@@ -244,9 +251,6 @@ public class PainelCentral {
                                         System.out.println("Erro ao Enviar pacote de C2 -> MW -> C1");
                                     }
 
-                                    if(contador == 8){
-                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
-                                    }
                                 }else {
                                     System.out.println("Pacote recebido de C2 é null");
                                 }

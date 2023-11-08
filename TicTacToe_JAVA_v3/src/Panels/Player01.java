@@ -76,8 +76,7 @@ public class Player01 {
 
                     if(!pacote_recebimento.isEmpty()){
 
-                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
-                                || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+                        if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez") || Objects.equals(pacote_recebimento.get("aviso"), "Você Perdeu")){
 
                             DesabilitaHabilitaBotoes(true);
 
@@ -87,7 +86,7 @@ public class Player01 {
                                 DefineStatusDoBotao(pacote_recebimento);
                             }
 
-                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Perdeu")){
                                 DesabilitaHabilitaBotoes(false);
                                 lblAviso.setText(pacote_recebimento.get("aviso"));
                             }
