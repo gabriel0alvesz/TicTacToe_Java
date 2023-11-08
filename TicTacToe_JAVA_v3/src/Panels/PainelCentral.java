@@ -41,6 +41,8 @@ public class PainelCentral {
     private Map<String, String> inicialX = new HashMap<>();
     private Map<String, String> inicialO = new HashMap<>();
 
+    private int contador = 0;
+
     public PainelCentral() {
 
         btnIniciarJogo.setEnabled(false);
@@ -158,21 +160,28 @@ public class PainelCentral {
                             while(true){
                                 Socket c1_c2 = SSc1_c2.accept();
                                 ObjectInputStream obj_rec = new ObjectInputStream(c1_c2.getInputStream());
-                                Map<String, Integer> posC1 = (Map<String,Integer>) obj_rec.readObject();
-                                // FAZER LOGICA PARA VERIFICAR A JOGADA
+                                Map<String, String> msg_c1_mw = (Map<String,String>) obj_rec.readObject();
 
-                                System.out.println(posC1.get("linha") + "," + posC1.get("coluna") + " / " + posC1.get("aviso"));
+                                // LOGICA PARA VERIFICAR A JOGADA
+                                String msg_retorno = VerificaJogada(msg_c1_mw);
 
-                                // Enviando a menssagem para C2
-                                Socket env = new Socket("127.0.0.1", 3001);
+                                if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+                                    Socket env = new Socket("127.0.0.1", 3001);
 
-                                ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
-                                obj_env.flush();
-                                obj_env.writeObject(posC1);
+                                    if(Objects.equals((msg_retorno), "Você Ganhou")){
+                                        msg_c1_mw.put("aviso", "Você Ganhou");
+                                    }
 
-                                // Fechando Objetos e Sockets
-                                obj_env.close();
-                                env.close();
+                                    ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
+                                    obj_env.flush();
+                                    obj_env.writeObject(msg_c1_mw);
+
+                                    // Fechando Objetos e Sockets
+                                    obj_env.close();
+                                    env.close();
+                                }else{
+                                    System.out.println("Erro ao Enviar pacote de C1 -> MW -> C2");
+                                }
 
                                 obj_rec.close();
                                 c1_c2.close();
@@ -193,20 +202,28 @@ public class PainelCentral {
                                 System.out.println("Cliente 2 Conectado!");
 
                                 ObjectInputStream obj_rec = new ObjectInputStream(c2_c1.getInputStream());
-                                Map<String, String> msg_mw = (Map<String, String>)obj_rec.readObject();
-                                // Faz a logica de verificação
+                                Map<String, String> msg_c2_mw = (Map<String,String>) obj_rec.readObject();
 
+                                // LOGICA PARA VERIFICAR A JOGADA
+                                String msg_retorno = VerificaJogada(msg_c2_mw);
 
-                                // Enviando a menssagem para C1
-                                Socket env = new Socket("127.0.0.1", 2001);
+                                if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+                                    Socket env = new Socket("127.0.0.1", 2001);
 
-                                ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
-                                obj_env.flush();
-                                obj_env.writeObject(msg_mw);
+                                    if(Objects.equals((msg_retorno), "Você Ganhou")){
+                                        msg_c2_mw.put("aviso", "Você Ganhou");
+                                    }
 
-                                // Fechando Objetos e Sockets
-                                obj_env.close();
-                                env.close();
+                                    ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
+                                    obj_env.flush();
+                                    obj_env.writeObject(msg_c2_mw);
+
+                                    // Fechando Objetos e Sockets
+                                    obj_env.close();
+                                    env.close();
+                                }else{
+                                    System.out.println("Erro ao Enviar pacote de C2 -> MW -> C1");
+                                }
 
                                 obj_rec.close();
                                 c2_c1.close();
@@ -282,6 +299,46 @@ public class PainelCentral {
 
         System.out.println("Recebeu False!");
         return false;
+    }
+
+    public String VerificaJogada(Map<String, String> pacote) {
+        int c = Integer.parseInt(pacote.get("coluna")) - 1;
+        int l = Integer.parseInt(pacote.get("linha")) - 1;
+        int s = Integer.parseInt(pacote.get("simbolo"));
+        int somaLinha = 0;
+        int somaColuna = 0;
+        int somaDiagonalP = 0;
+        int somaDiagonalS = 0;
+
+        if (Tabuleiro[l][c] == 0) {
+            Tabuleiro[l][c] = s;
+            contador++;
+        } else {
+            return "ERRO";
+        }
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                somaLinha += Tabuleiro[i][j];
+                somaColuna += Tabuleiro[j][i];
+            }
+            somaDiagonalP += Tabuleiro[i][i];
+            somaDiagonalS += Tabuleiro[i][2 - i];
+            if (somaLinha == 3
+                    || somaLinha == -3
+                    || somaColuna == 3
+                    || somaColuna == -3
+                    || somaDiagonalP == 3
+                    || somaDiagonalP == -3
+                    || somaDiagonalS == 3
+                    || somaDiagonalS == -3) {
+                return "Você Ganhou";
+            }
+
+            somaLinha = 0;
+            somaColuna = 0;
+        }
+        return "Sua Vez";
     }
 
 }
