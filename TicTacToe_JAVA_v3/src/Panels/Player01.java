@@ -42,7 +42,15 @@ public class Player01 {
 
         DesabilitaHabilitaBotoes(false);
 
-        button11.addActionListener(ActionEvent -> {FazJogada("1", "1","Sua Vez", Simbolo);});
+        button11.addActionListener(ActionEvent -> {FazJogada("1", "1","Sua Vez", Simbolo); button11.setEnabled(false);});
+        button12.addActionListener(ActionEvent -> {FazJogada("1", "2","Sua Vez", Simbolo); button12.setEnabled(false);});
+        button13.addActionListener(ActionEvent -> {FazJogada("1", "3","Sua Vez", Simbolo); button13.setEnabled(false);});
+        button21.addActionListener(ActionEvent -> {FazJogada("2", "1","Sua Vez", Simbolo); button21.setEnabled(false);});
+        button22.addActionListener(ActionEvent -> {FazJogada("2", "2","Sua Vez", Simbolo); button22.setEnabled(false);});
+        button23.addActionListener(ActionEvent -> {FazJogada("2", "3","Sua Vez", Simbolo); button23.setEnabled(false);});
+        button31.addActionListener(ActionEvent -> {FazJogada("3", "1","Sua Vez", Simbolo); button31.setEnabled(false);});
+        button32.addActionListener(ActionEvent -> {FazJogada("3", "2","Sua Vez", Simbolo); button32.setEnabled(false);});
+        button33.addActionListener(ActionEvent -> {FazJogada("3", "3","Sua Vez", Simbolo); button33.setEnabled(false);});
 
 // ----------------> Recebe os dados Iniciais.
 
@@ -54,76 +62,52 @@ public class Player01 {
         }
 
         // Tread de input Cliente 1
-//        new Thread(() -> {
-//            try {
-//                ServerSocket SSc1 = new ServerSocket(2001);
-//                Map<String, String> msg;
-//                // Recebendo mensagem do Middleware.
-//                while(true){
-//
-//                    Socket c1 = SSc1.accept();
-//                    ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
-//                    pacote_recebimento = (Map<String, String>) obj_M_c1.readObject();
-//
-//                    if(!pacote_recebimento.isEmpty()){
-//
-//                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
-//                        || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
-//
-//                            DesabilitaHabilitaBotoes(true);
-//
-//                            if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
-//                                MarcaJogada(pacote_recebimento);
-//                                DefineStatusDoBotao(pacote_recebimento);
-//                                lblAviso.setText(pacote_envio.get("aviso"));
-//                                pacote_recebimento = null;
-//                            }
-//
-//                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
-//                                DesabilitaHabilitaBotoes(false);
-//                                lblAviso.setText(pacote_envio.get("aviso"));
-//                            }
-//                        }else{
-//                            System.out.println("Aviso enviando ao C1,  não correspondente");
-//                        }
-//                    }else{
-//                        System.out.println("Recebimento de pacote Nulo ao C1!");
-//                    }
-//
-//                    obj_M_c1.close();
-//                    c1.close();
-//                }
-//
-//            }catch (Exception ex){
-//                System.out.println("Erro na ThInput C1 - " + ex.getMessage());
-//            }
-//        }).start();
+        new Thread(() -> {
+            try {
+                Map<String, String> pacote_recebimento;
 
-        // Thread de output do Cliente 1
-//        new Thread(() -> {
-//            try {
-//                while(true){
-//                    Socket c1 = new Socket("127.0.0.1", 2000);
-//
-//                    ObjectOutputStream obj_c1_M = new ObjectOutputStream(c1.getOutputStream());
-//
-//                    if(ValidaJogada(pacote_envio)){
-//                        DefineStatusDoBotao(pacote_envio);
-//                        obj_c1_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
-//                    }else {
-//                        System.out.println("Jogada não pode ser validada!");
-//                    }
-//
-//                    obj_c1_M.close();
-//                    c1.close();
-//
-//                    pacote_envio = null;
-//                }
-//            }catch (Exception ex){
-//                System.out.println("Erro na ThOutput C1 - " + ex.getMessage());
-//            }
-//        }).start();
+                // Recebendo mensagem do Middleware de C1
+                while(true){
 
+                    ServerSocket SSc1 = new ServerSocket(2001); // Server que fica aberto para receber dados de C2 -> MW -> C1(atual)
+                    Socket c1 = SSc1.accept();
+                    ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
+                    pacote_recebimento = (Map<String, String>) obj_M_c1.readObject();
+
+                    if(!pacote_recebimento.isEmpty()){
+
+                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
+                                || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+
+                            DesabilitaHabilitaBotoes(true);
+
+                            if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
+                                System.out.println("Entrou na sua Vez!");
+                                MarcaJogada(pacote_recebimento);
+                                DefineStatusDoBotao(pacote_recebimento);
+                            }
+
+                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+                                DesabilitaHabilitaBotoes(false);
+                                lblAviso.setText(pacote_recebimento.get("aviso"));
+                            }
+                        }else{
+                            System.out.println("Aviso enviando para C1,  não correspondente");
+                        }
+                    }else{
+                        System.out.println("Recebimento de pacote Nulo ao C1!");
+                    }
+
+
+                    obj_M_c1.close();
+                    c1.close();
+                    SSc1.close();
+                }
+
+            }catch (Exception ex){
+                System.out.println("Erro na ThreadInputC1 - " + ex.getMessage());
+            }
+        }).start();
     }
 
     private void DesabilitaHabilitaBotoes(boolean cod){

@@ -41,13 +41,15 @@ public class Player02 {
 
         DesabilitaHabilitaBotoes(false);
 
-//        button22.addActionListener(ActionEvent -> {
-//            pacote_envio.put("linha", "2");
-//            pacote_envio.put("coluna", "2");
-//            pacote_envio.put("aviso", "Sua Vez");
-//            pacote_envio.put("simbolo", Simbolo);
-//            button22.setText(QualSimbolo(Simbolo));
-//        });
+        button11.addActionListener(ActionEvent -> {FazJogada("1", "1","Sua Vez", Simbolo); button11.setEnabled(false);});
+        button12.addActionListener(ActionEvent -> {FazJogada("1", "2","Sua Vez", Simbolo); button12.setEnabled(false);});
+        button13.addActionListener(ActionEvent -> {FazJogada("1", "3","Sua Vez", Simbolo); button13.setEnabled(false);});
+        button21.addActionListener(ActionEvent -> {FazJogada("2", "1","Sua Vez", Simbolo); button21.setEnabled(false);});
+        button22.addActionListener(ActionEvent -> {FazJogada("2", "2","Sua Vez", Simbolo); button22.setEnabled(false);});
+        button23.addActionListener(ActionEvent -> {FazJogada("2", "3","Sua Vez", Simbolo); button23.setEnabled(false);});
+        button31.addActionListener(ActionEvent -> {FazJogada("3", "1","Sua Vez", Simbolo); button31.setEnabled(false);});
+        button32.addActionListener(ActionEvent -> {FazJogada("3", "2","Sua Vez", Simbolo); button32.setEnabled(false);});
+        button33.addActionListener(ActionEvent -> {FazJogada("3", "3","Sua Vez", Simbolo); button33.setEnabled(false);});
 
         // ----------------> Recebe os dados Iniciais.
 
@@ -63,12 +65,12 @@ public class Player02 {
         // Tread de input Cliente 2
         new Thread(() -> {
             try {
-                ServerSocket SSc2 = new ServerSocket(3001); // Server que fica aberto para receber dados de C1 -> MW -> C2(atual)
                 Map<String, String> pacote_recebimento;
 
                 // Recebendo mensagem do Middleware de C1
                 while(true){
 
+                    ServerSocket SSc2 = new ServerSocket(3001); // Server que fica aberto para receber dados de C1 -> MW -> C2(atual)
                     Socket c2 = SSc2.accept();
                     ObjectInputStream obj_M_c2 = new ObjectInputStream(c2.getInputStream());
                     pacote_recebimento = (Map<String, String>) obj_M_c2.readObject();
@@ -84,7 +86,6 @@ public class Player02 {
                                 System.out.println("Entrou na sua Vez!");
                                 MarcaJogada(pacote_recebimento);
                                 DefineStatusDoBotao(pacote_recebimento);
-                                pacote_recebimento = null;
                             }
 
                             if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
@@ -101,36 +102,13 @@ public class Player02 {
 
                     obj_M_c2.close();
                     c2.close();
+                    SSc2.close();
                 }
 
             }catch (Exception ex){
-                System.out.println("Erro na ThInput C1 - " + ex.getMessage());
+                System.out.println("Erro na ThreadInputC2- " + ex.getMessage());
             }
         }).start();
-
-        //Thread de output do Cliente 2
-//        new Thread(() -> {
-//            try {
-//                while(true){
-//                    Socket c2 = new Socket("127.0.0.1", 3000);
-//
-//                    ObjectOutputStream obj_c2_M = new ObjectOutputStream(c2.getOutputStream());
-//
-//                    if(ValidaJogada(pacote_envio)){
-//                        DefineStatusDoBotao(pacote_envio);
-//                        obj_c2_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
-//                    }else {
-//                        System.out.println("Jogada não pode ser validada!");
-//                    }
-//
-//                    obj_c2_M.close();
-//                    c2.close();
-//                }
-//            }catch (Exception ex){
-//                System.out.println("Erro no pacote de envio do C2 - " + ex.getMessage());
-//            }
-//        }).start();
-
     }
 
     private void DesabilitaHabilitaBotoes(boolean cod) {
@@ -140,8 +118,43 @@ public class Player02 {
         }
     }
 
-    private void FazJogada(Map<String, String> pacote) {
+    private void FazJogada(String linha, String coluna, String aviso, String simbolo) {
+        // Cria pacote
+        Map<String, String> pacote_envio = new HashMap<>();
+        pacote_envio.put("linha", linha);
+        pacote_envio.put("coluna", coluna);
+        pacote_envio.put("aviso", aviso);
+        pacote_envio.put("simbolo", simbolo);
 
+        try {
+            boolean control = true;
+            while(control){
+                Socket c2 = new Socket("127.0.0.1", 3000);
+
+                ObjectOutputStream obj_c2_M = new ObjectOutputStream(c2.getOutputStream());
+
+                if(ValidaJogada(pacote_envio)){
+                    DefineStatusDoBotao(pacote_envio);
+                    MarcaJogada(pacote_envio);
+                    obj_c2_M.writeObject(pacote_envio); //Envia para o middleware
+                    DesabilitaHabilitaBotoes(false);
+                    lblAviso.setText("Aguarde a Sua Vez Novamente!");
+                    control = false;
+                }else {
+                    System.out.println("Jogada não pode ser validada!");
+                    control = false;
+                }
+
+                pacote_envio = null;
+
+                obj_c2_M.close();
+                c2.close();
+            }
+
+            System.out.println("Saiu do loop de envio da jogada");
+        }catch (Exception ex) {
+            System.out.println("Erro o envio da jogada - " + ex.getMessage());
+        }
     }
 
     public void mostraMensagem(Map<String, String> pacote) {

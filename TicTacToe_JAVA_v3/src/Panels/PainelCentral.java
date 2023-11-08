@@ -163,33 +163,42 @@ public class PainelCentral {
                         try{
                             ServerSocket SSc1_c2 = new ServerSocket(2000); // recebe de C1
                             while(true){
-                                System.out.println("\nEsperando Mensagem do C1...");
+//                                System.out.println("\nEsperando Mensagem do C1...");
                                 Socket c1_c2 = SSc1_c2.accept();
-                                System.out.println("Cliente 1 Conectado!");
+//                                System.out.println("Menssagem de C1 recebida");
                                 ObjectInputStream obj_rec = new ObjectInputStream(c1_c2.getInputStream());
                                 Map<String, String> msg_c1_mw = (Map<String,String>) obj_rec.readObject();
 
-                                // LOGICA PARA VERIFICAR A JOGADA
-                                String msg_retorno = VerificaJogada(msg_c1_mw);
+                                if(!msg_c1_mw.isEmpty()){
+                                    // LOGICA PARA VERIFICAR A JOGADA
+                                    String msg_retorno = VerificaJogada(msg_c1_mw);
 
-                                if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
-                                    Socket env = new Socket("127.0.0.1", 3001); // abre para enviar para C2
+                                    if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+                                        System.out.println("\nC1 -> C2");
+                                        printMatrix(Tabuleiro);
+                                        Socket env = new Socket("127.0.0.1", 3001); // abre para enviar para C2
 
-                                    if(Objects.equals((msg_retorno), "Você Ganhou")){
-                                        msg_c1_mw.put("aviso", "Você Ganhou");
+                                        if(Objects.equals((msg_retorno), "Você Ganhou")){
+                                            msg_c1_mw.put("aviso", "Você Ganhou");
+                                        }
+
+                                        ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
+                                        obj_env.flush();
+                                        obj_env.writeObject(msg_c1_mw);
+
+                                        // Fechando Objetos e Sockets
+                                        obj_env.close();
+                                        env.close();
+                                    }else{
+                                        System.out.println("Erro ao Enviar pacote de C1 -> MW -> C2");
                                     }
 
-                                    ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
-                                    obj_env.flush();
-                                    obj_env.writeObject(msg_c1_mw);
-
-                                    // Fechando Objetos e Sockets
-                                    obj_env.close();
-                                    env.close();
-                                }else{
-                                    System.out.println("Erro ao Enviar pacote de C1 -> MW -> C2");
+                                    if(contador == 8){
+                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                    }
+                                }else {
+                                    System.out.println("Pacote recebido de C1 é null");
                                 }
-
                                 obj_rec.close();
                                 c1_c2.close();
                             }
@@ -202,34 +211,44 @@ public class PainelCentral {
                     // Recebe de C2 e envia para C1
                     new Thread(() -> {
                         try{
-                            ServerSocket SSc2_c1 = new ServerSocket(3000); // recebe C2
+                            ServerSocket SSc2_c1 = new ServerSocket(3000); // abre para enviar para C1
                             while(true){
-                                System.out.println("\nEsperando Mensagem do C2...");
+//                                System.out.println("\nEsperando Mensagem do C2...");
                                 Socket c2_c1 = SSc2_c1.accept();
-                                System.out.println("Cliente 2 Conectado!");
+//                                System.out.println("Menssagem de C2 recebida!");
 
                                 ObjectInputStream obj_rec = new ObjectInputStream(c2_c1.getInputStream());
                                 Map<String, String> msg_c2_mw = (Map<String,String>) obj_rec.readObject();
 
-                                // LOGICA PARA VERIFICAR A JOGADA
-                                String msg_retorno = VerificaJogada(msg_c2_mw);
+                                if(!msg_c2_mw.isEmpty()){
+                                    // LOGICA PARA VERIFICAR A JOGADA
+                                    String msg_retorno = VerificaJogada(msg_c2_mw);
 
-                                if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
-                                    Socket env = new Socket("127.0.0.1", 2001);
+                                    if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+                                        System.out.println("\nC2 -> C1");
+                                        printMatrix(Tabuleiro);
+                                        Socket env = new Socket("127.0.0.1", 2001);
 
-                                    if(Objects.equals((msg_retorno), "Você Ganhou")){
-                                        msg_c2_mw.put("aviso", "Você Ganhou");
+                                        if(Objects.equals((msg_retorno), "Você Ganhou")){
+                                            msg_c2_mw.put("aviso", "Você Ganhou");
+                                        }
+
+                                        ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
+                                        obj_env.flush();
+                                        obj_env.writeObject(msg_c2_mw);
+
+                                        // Fechando Objetos e Sockets
+                                        obj_env.close();
+                                        env.close();
+                                    }else{
+                                        System.out.println("Erro ao Enviar pacote de C2 -> MW -> C1");
                                     }
 
-                                    ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
-                                    obj_env.flush();
-                                    obj_env.writeObject(msg_c2_mw);
-
-                                    // Fechando Objetos e Sockets
-                                    obj_env.close();
-                                    env.close();
-                                }else{
-                                    System.out.println("Erro ao Enviar pacote de C2 -> MW -> C1");
+                                    if(contador == 8){
+                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                    }
+                                }else {
+                                    System.out.println("Pacote recebido de C2 é null");
                                 }
 
                                 obj_rec.close();
@@ -350,5 +369,14 @@ public class PainelCentral {
         return "Sua Vez";
     }
 
+    private void printMatrix(int[][] matrix) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 }
 
