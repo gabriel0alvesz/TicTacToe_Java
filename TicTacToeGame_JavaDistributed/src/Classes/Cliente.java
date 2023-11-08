@@ -23,11 +23,6 @@ public class Cliente {
         output = new ObjectOutputStream(client.getOutputStream());
     }
 
-    private void FinalizaCliente() throws IOException {
-        input.close();
-        output.close();
-    }
-
     public Map<String, String> RecebeMapPacote() throws IOException, ClassNotFoundException {
         return (Map<String, String>) input.readObject();
     }

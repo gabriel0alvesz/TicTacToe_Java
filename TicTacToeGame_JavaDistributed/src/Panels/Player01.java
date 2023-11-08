@@ -49,27 +49,11 @@ public class Player01 {
             // Iniciando cliente recebendo pacote inicial do jogador
             try {
                 Jogador1 = new Cliente(7777);
-//                Map<String, String> pacoteJ1;
-//                DesabilitaHabilitaBotoes(false);
-//                while(true){
-//
-//                    pacoteJ1 = new HashMap<>(Jogador1.RecebeMapPacote());
-//                    System.out.println("RECEBEU O PACOTE!");
-//                    System.out.println(pacoteJ1.get("nome1") + " -> " + pacoteJ1.get("simbolo1"));
-//                    System.out.println(pacoteJ1.get("nome2") + " -> " + pacoteJ1.get("simbolo2"));
-//                    System.out.println(pacoteJ1.get("aviso"));
-//                    break;
-//                }
-//
-//                System.out.println("Saiu do While P1");
 
             }catch (IOException ex) {
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
                 ex.printStackTrace();
             }
-//            } catch (ClassNotFoundException e) {
-//                throw new RuntimeException(e);
-//            }
 
             // Iniciando Jogador 1
             try{

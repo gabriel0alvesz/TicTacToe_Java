@@ -51,19 +51,6 @@ public class Player02 {
             // Iniciando cliente recebendo pacote inicial do jogador
             try {
                 Jogador2 = new Cliente(8888);
-//                Map<String, String> pacoteJ1;
-//                DesabilitaHabilitaBotoes(false);
-//                while(true){
-//
-//                    pacoteJ1 = new HashMap<>(Jogador2.RecebeMapPacote());
-//                    System.out.println("RECEBEU O PACOTE!");
-//                    System.out.println(pacoteJ1.get("nome1") + " -> " + pacoteJ1.get("simbolo1"));
-//                    System.out.println(pacoteJ1.get("nome2") + " -> " + pacoteJ1.get("simbolo2"));
-//                    System.out.println(pacoteJ1.get("aviso"));
-//                    break;
-//                }
-//
-//                System.out.println("Saiu do While P1");
             }catch (Exception ex){
                 System.out.println("Erro ao abrir cliente 1: " + ex.getMessage());
             }
