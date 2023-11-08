@@ -114,20 +114,24 @@ public class PainelCentral {
 
 //  ------------------> Envia para cada jogador seus respectivos dados Iniciais
         btnIniciarJogo.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                btnIniciarJogo.setText("Começou!");
+                btnIniciarJogo.revalidate();
+                btnIniciarJogo.repaint();
+                btnIniciarJogo.setEnabled(false);
+
                 if(!NomeJogador1.isEmpty()  && !NomeJogador2.isEmpty() && !SimboloJ1.isEmpty() && !SimboloJ2.isEmpty()){
 
-
                     // Thread envia jogo inicial para os clientes
-                    new Thread(() -> {
                         try{
                             Socket env1 = new Socket("127.0.0.1", 4444);// Envia para C1;
                             ObjectOutputStream obj_env1 = new ObjectOutputStream(env1.getOutputStream());
 
                             Socket env2 = new Socket("127.0.0.1", 5555); //Envia para c2
-                            ObjectOutputStream obj_env = new ObjectOutputStream(env2.getOutputStream());
+                            ObjectOutputStream obj_env2 = new ObjectOutputStream(env2.getOutputStream());
 
                             boolean control = InicializaJogadores();
 
@@ -136,29 +140,32 @@ public class PainelCentral {
                                 obj_env1.flush();
                                 obj_env1.writeObject(inicialX);
 
-                                obj_env.flush();
-                                obj_env.writeObject(inicialO);
+                                obj_env2.flush();
+                                obj_env2.writeObject(inicialO);
                             }else{
                                 obj_env1.flush();
                                 obj_env1.writeObject(inicialO);
 
-                                obj_env.flush();
-                                obj_env.writeObject(inicialX);
+                                obj_env2.flush();
+                                obj_env2.writeObject(inicialX);
                             }
+
+                            obj_env1.close(); obj_env2.close();
+                            env1.close(); env2.close();
 
                         }catch (Exception ex){
                             System.out.println("Erro ao enviar dados Iniciais: " + ex.getMessage());
                         }
 
 
-                    }).start();
-
                     // Recebe de C1 e envia para C2
                     new Thread(() -> {
                         try{
                             ServerSocket SSc1_c2 = new ServerSocket(2000); // recebe de C1
                             while(true){
+                                System.out.println("\nEsperando Mensagem do C1...");
                                 Socket c1_c2 = SSc1_c2.accept();
+                                System.out.println("Cliente 1 Conectado!");
                                 ObjectInputStream obj_rec = new ObjectInputStream(c1_c2.getInputStream());
                                 Map<String, String> msg_c1_mw = (Map<String,String>) obj_rec.readObject();
 
@@ -166,7 +173,7 @@ public class PainelCentral {
                                 String msg_retorno = VerificaJogada(msg_c1_mw);
 
                                 if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
-                                    Socket env = new Socket("127.0.0.1", 3001);
+                                    Socket env = new Socket("127.0.0.1", 3001); // abre para enviar para C2
 
                                     if(Objects.equals((msg_retorno), "Você Ganhou")){
                                         msg_c1_mw.put("aviso", "Você Ganhou");
@@ -233,6 +240,8 @@ public class PainelCentral {
                         }
 
                     }).start();
+                }else{
+                    System.out.println("Erro ao Iniciar jogo");
                 }
             }
         });

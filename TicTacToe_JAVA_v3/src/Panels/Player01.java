@@ -29,8 +29,8 @@ public class Player01 {
     private String Simbolo;
     private String NomeP1;
 
-    Map<String, String> pacote_envio;
-    Map<String, String> pacote_recebimento;
+//    Map<String, String> pacote_envio;
+//    Map<String, String> pacote_recebimento;
     JButton[] ListaDeBotoes = {
             button11, button12, button13,
             button21, button22, button23,
@@ -41,115 +41,88 @@ public class Player01 {
     public Player01(){
 
         DesabilitaHabilitaBotoes(false);
-        pacote_envio = new HashMap<>();
-        pacote_recebimento = new HashMap<>();
 
-        button11.addActionListener(ActionEvent -> {pacote_envio.put("linha", "1"); pacote_envio.put("coluna", "1");pacote_envio.put("aviso", "Sua Vez"); pacote_envio.put("simbolo", Simbolo); button11.setText(QualSimbolo(Simbolo));});
+        button11.addActionListener(ActionEvent -> {FazJogada("1", "1","Sua Vez", Simbolo);});
 
 // ----------------> Recebe os dados Iniciais.
-        new Thread(() -> {
-            try {
-                ServerSocket SSc1 = new ServerSocket(4444);
-                Map<String, String> msg;
-                // Recebendo mensagem do Middleware.
-                while(true){
 
-                    Socket c1 = SSc1.accept();
-                    System.out.println("Recebendo dados do Player 1");
-                    ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
-                    msg = (Map<String, String>) obj_M_c1.readObject();
-                    NomeP1 = msg.get("nome");
-                    Simbolo = msg.get("simbolo");
-                    lblNomeJogador.setText(NomeP1);
-
-                    if(Objects.equals(msg.get("aviso"), "Você Começa")){
-                        DesabilitaHabilitaBotoes(true);
-                        lblAviso.setText(msg.get("aviso"));
-                    }else if (Objects.equals(msg.get("aviso"), "Espere sua Vez")){
-                        DesabilitaHabilitaBotoes(false);
-                    }
-
-                    obj_M_c1.close();
-                    c1.close();
-                    break;
-                }
-
-            }catch (Exception ex){
-                System.out.println("Erro na ThInput C1 - " + ex.getMessage());
-            }
-        }).start();
-
+        boolean recebeuDados = RecebeDadosIniciais();
+        if (recebeuDados){
+            System.out.println("recebeu os dados do player 1 com sucesso!");
+        }else{
+            System.out.println("SEM sucesso ao receber os dados do player 1!");
+        }
 
         // Tread de input Cliente 1
-        new Thread(() -> {
-            try {
-                ServerSocket SSc1 = new ServerSocket(2001);
-                Map<String, String> msg;
-                // Recebendo mensagem do Middleware.
-                while(true){
-
-                    Socket c1 = SSc1.accept();
-                    ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
-                    pacote_recebimento = (Map<String, String>) obj_M_c1.readObject();
-
-                    if(!pacote_recebimento.isEmpty()){
-
-                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
-                        || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
-
-                            DesabilitaHabilitaBotoes(true);
-
-                            if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
-                                MarcaJogada(pacote_recebimento);
-                                DefineStatusDoBotao(pacote_recebimento);
-                                lblAviso.setText(pacote_envio.get("aviso"));
-                                pacote_recebimento = null;
-                            }
-
-                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
-                                DesabilitaHabilitaBotoes(false);
-                                lblAviso.setText(pacote_envio.get("aviso"));
-                            }
-                        }else{
-                            System.out.println("Aviso enviando ao C1,  não correspondente");
-                        }
-                    }else{
-                        System.out.println("Recebimento de pacote Nulo ao C1!");
-                    }
-
-                    obj_M_c1.close();
-                    c1.close();
-                }
-
-            }catch (Exception ex){
-                System.out.println("Erro na ThInput C1 - " + ex.getMessage());
-            }
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                ServerSocket SSc1 = new ServerSocket(2001);
+//                Map<String, String> msg;
+//                // Recebendo mensagem do Middleware.
+//                while(true){
+//
+//                    Socket c1 = SSc1.accept();
+//                    ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
+//                    pacote_recebimento = (Map<String, String>) obj_M_c1.readObject();
+//
+//                    if(!pacote_recebimento.isEmpty()){
+//
+//                        if(Objects.equals(pacote_recebimento.get("aviso"), "Você Começa") || Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")
+//                        || Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+//
+//                            DesabilitaHabilitaBotoes(true);
+//
+//                            if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
+//                                MarcaJogada(pacote_recebimento);
+//                                DefineStatusDoBotao(pacote_recebimento);
+//                                lblAviso.setText(pacote_envio.get("aviso"));
+//                                pacote_recebimento = null;
+//                            }
+//
+//                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Ganhou")){
+//                                DesabilitaHabilitaBotoes(false);
+//                                lblAviso.setText(pacote_envio.get("aviso"));
+//                            }
+//                        }else{
+//                            System.out.println("Aviso enviando ao C1,  não correspondente");
+//                        }
+//                    }else{
+//                        System.out.println("Recebimento de pacote Nulo ao C1!");
+//                    }
+//
+//                    obj_M_c1.close();
+//                    c1.close();
+//                }
+//
+//            }catch (Exception ex){
+//                System.out.println("Erro na ThInput C1 - " + ex.getMessage());
+//            }
+//        }).start();
 
         // Thread de output do Cliente 1
-        new Thread(() -> {
-            try {
-                while(true){
-                    Socket c1 = new Socket("127.0.0.1", 2000);
-
-                    ObjectOutputStream obj_c1_M = new ObjectOutputStream(c1.getOutputStream());
-
-                    if(ValidaJogada(pacote_envio)){
-                        DefineStatusDoBotao(pacote_envio);
-                        obj_c1_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
-                    }else {
-                        System.out.println("Jogada não pode ser validada!");
-                    }
-
-                    obj_c1_M.close();
-                    c1.close();
-
-                    pacote_envio = null;
-                }
-            }catch (Exception ex){
-                System.out.println("Erro na ThOutput C1 - " + ex.getMessage());
-            }
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                while(true){
+//                    Socket c1 = new Socket("127.0.0.1", 2000);
+//
+//                    ObjectOutputStream obj_c1_M = new ObjectOutputStream(c1.getOutputStream());
+//
+//                    if(ValidaJogada(pacote_envio)){
+//                        DefineStatusDoBotao(pacote_envio);
+//                        obj_c1_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
+//                    }else {
+//                        System.out.println("Jogada não pode ser validada!");
+//                    }
+//
+//                    obj_c1_M.close();
+//                    c1.close();
+//
+//                    pacote_envio = null;
+//                }
+//            }catch (Exception ex){
+//                System.out.println("Erro na ThOutput C1 - " + ex.getMessage());
+//            }
+//        }).start();
 
     }
 
@@ -160,9 +133,45 @@ public class Player01 {
         }
     }
 
-    private void FazJogada(Map<String, String> pacote) {
+    private void FazJogada(String linha, String coluna, String aviso, String simbolo) {
+        // Cria pacote
+        Map<String, String> pacote_envio = new HashMap<>();
+        pacote_envio.put("linha", linha);
+        pacote_envio.put("coluna", coluna);
+        pacote_envio.put("aviso", aviso);
+        pacote_envio.put("simbolo", simbolo);
 
+        try {
+            boolean control = true;
+            while(control){
+                Socket c1 = new Socket("127.0.0.1", 2000);
+
+                ObjectOutputStream obj_c1_M = new ObjectOutputStream(c1.getOutputStream());
+
+                if(ValidaJogada(pacote_envio)){
+                    DefineStatusDoBotao(pacote_envio);
+                    MarcaJogada(pacote_envio);
+                    obj_c1_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
+                    DesabilitaHabilitaBotoes(false);
+                    lblAviso.setText("Aguarde a Sua Vez Novamente!");
+                    control = false;
+                }else {
+                    System.out.println("Jogada não pode ser validada!");
+                    control = false;
+                }
+
+                pacote_envio = null;
+
+                obj_c1_M.close();
+                c1.close();
+            }
+
+            System.out.println("Saiu do loop de envio da jogada");
+        }catch (Exception ex) {
+            System.out.println("Erro o envio da jogada - " + ex.getMessage());
+        }
     }
+
     public void mostraMensagem(Map<String,String> pacote) {
         String aviso = pacote.get("aviso");
         if (Objects.equals(aviso, "Você Ganhou!")) {
@@ -251,5 +260,44 @@ public class Player01 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private boolean RecebeDadosIniciais() {
+        try {
+            Map<String, String> msg;
+            boolean control = true;
+            // Recebendo mensagem do Middleware.
+            while (control) {
+                ServerSocket SSc1 = new ServerSocket(4444);
+                System.out.println("Recebendo dados do Player 1");
+                Socket c1 = SSc1.accept();
+                System.out.println("RecebeU dados do Player 1");
+                control = false;
+                ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
+                msg = (Map<String, String>) obj_M_c1.readObject();
+
+                NomeP1 = msg.get("nome");
+                Simbolo = msg.get("simbolo");
+                lblNomeJogador.setText(NomeP1);
+
+                if (Objects.equals(msg.get("aviso"), "Você Começa")) {
+                    DesabilitaHabilitaBotoes(true);
+                    lblAviso.setText(msg.get("aviso"));
+                } else if (Objects.equals(msg.get("aviso"), "Espere sua Vez")) {
+                    DesabilitaHabilitaBotoes(false);
+                }
+
+                obj_M_c1.close();
+                c1.close();
+                SSc1.close();
+            }
+
+            System.out.println("Saiu do loop de recebimento do player 1");
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Erro no recebimento de dados iniciais C1 - " + ex.getMessage());
+        }
+
+        return false;
     }
 }
