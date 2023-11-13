@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -112,7 +111,6 @@ public class PainelCentral {
             }
         });
 
-//  ------------------> Envia para cada jogador seus respectivos dados Iniciais
         btnIniciarJogo.addActionListener(new ActionListener() {
 
             @Override
@@ -125,6 +123,7 @@ public class PainelCentral {
 
                 if(!NomeJogador1.isEmpty()  && !NomeJogador2.isEmpty() && !SimboloJ1.isEmpty() && !SimboloJ2.isEmpty()){
 
+//  ------------------> Envia para cada jogador seus respectivos dados Iniciais
                     // Thread envia jogo inicial para os clientes
                         try{
                             Socket env1 = new Socket("127.0.0.1", 4444);// Envia para C1;
@@ -158,7 +157,7 @@ public class PainelCentral {
                         }
 
 
-                    // Recebe de C1 e envia para C2
+// ------------------> Recebe de C1 e envia para C2
                     new Thread(() -> {
                         try{
                             ServerSocket SSc1_c2 = new ServerSocket(2000); // recebe de C1
@@ -174,6 +173,7 @@ public class PainelCentral {
 
                                     if(contador == 8){
                                         JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+
                                         break;
                                     }
                                     if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
@@ -210,7 +210,7 @@ public class PainelCentral {
                     }).start();
 
 
-                    // Recebe de C2 e envia para C1
+// --------------------> Recebe de C2 e envia para c1
                     new Thread(() -> {
                         try{
                             ServerSocket SSc2_c1 = new ServerSocket(3000); // abre para enviar para C1
@@ -280,6 +280,7 @@ public class PainelCentral {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+// -------------> Funções
     private void SortearSimbolos(){
         Random random = new Random();
         int numero = random.nextInt(2); // Gera 0 ou 1
