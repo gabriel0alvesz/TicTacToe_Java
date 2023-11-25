@@ -8,9 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.List;
 
 public class Player01 {
     private JLabel lblNomeJogador;
@@ -29,15 +28,19 @@ public class Player01 {
     private String Simbolo;
     private String NomeP1;
 
-//    Map<String, String> pacote_envio;
-//    Map<String, String> pacote_recebimento;
-    JButton[] ListaDeBotoes = {
+    JButton[] ListaDeBotoesFisicos = {
             button11, button12, button13,
             button21, button22, button23,
             button31, button32, button33
     };
+    String[] ListaDeBotoes = {
+            "11", "12", "13",
+            "21", "22", "23",
+            "31", "32", "33"
+    };
 
-    private int contador = 0;
+    List<String> BotoesApertdos = new ArrayList<>();
+
     public Player01(){
 
         DesabilitaHabilitaBotoes(false);
@@ -82,6 +85,7 @@ public class Player01 {
 
                             if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
                                 System.out.println("Entrou na sua Vez!");
+
                                 MarcaJogada(pacote_recebimento);
                                 DefineStatusDoBotao(pacote_recebimento);
 
@@ -128,7 +132,6 @@ public class Player01 {
                 ObjectOutputStream obj_c1_M = new ObjectOutputStream(c1.getOutputStream());
 
                 if(ValidaJogada(pacote_envio)){
-//                    DefineStatusDoBotao(pacote_envio);
 
                     MarcaJogada(pacote_envio);
                     obj_c1_M.writeObject(pacote_envio); // parametro que deve ser sempre atualizado para ser enviado.
@@ -154,9 +157,27 @@ public class Player01 {
 
 
     private void DesabilitaHabilitaBotoes(boolean cod){
-
-        for(JButton b : ListaDeBotoes){
-            b.setEnabled(cod);
+        if(cod){
+            for(String b : ListaDeBotoes){
+                // se da lista de botoes, o botão não estiver sido apertado antes, poderá ser clicado para futura jogada.
+                if(!BotoesApertdos.contains(b)){
+                    switch (b) {
+                        case "11" -> button11.setEnabled(cod);
+                        case "12" -> button12.setEnabled(cod);
+                        case "13" -> button13.setEnabled(cod);
+                        case "21" -> button21.setEnabled(cod);
+                        case "22" -> button22.setEnabled(cod);
+                        case "23" -> button23.setEnabled(cod);
+                        case "31" -> button31.setEnabled(cod);
+                        case "32" -> button32.setEnabled(cod);
+                        case "33" -> button33.setEnabled(cod);
+                    };
+                }
+            }
+        }else{
+            for(JButton b : ListaDeBotoesFisicos){
+               b.setEnabled(cod);
+            }
         }
     }
 
@@ -229,15 +250,42 @@ public class Player01 {
         String simbolo = QualSimbolo(pacote.get("simbolo"));
 
         switch (botao) {
-            case "11" -> button11.setText(simbolo);
-            case "12" -> button12.setText(simbolo);
-            case "13" -> button13.setText(simbolo);
-            case "21" -> button21.setText(simbolo);
-            case "22" -> button22.setText(simbolo);
-            case "23" -> button23.setText(simbolo);
-            case "31" -> button31.setText(simbolo);
-            case "32" -> button32.setText(simbolo);
-            case "33" -> button33.setText(simbolo);
+            case "11":
+                button11.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "12":
+                button12.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "13":
+                button13.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "21":
+                button21.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "22":
+                button22.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "23":
+                button23.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "31":
+                button31.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "32":
+                button32.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
+            case "33":
+                button33.setText(simbolo);
+                BotoesApertdos.add(botao);
+                break;
         }
     }
 
@@ -257,9 +305,8 @@ public class Player01 {
             // Recebendo mensagem do Middleware.
             while (control) {
                 ServerSocket SSc1 = new ServerSocket(4444);
-//                System.out.println("Recebendo dados do Player 1");
                 Socket c1 = SSc1.accept();
-//                System.out.println("RecebeU dados do Player 1");
+
                 control = false;
                 ObjectInputStream obj_M_c1 = new ObjectInputStream(c1.getInputStream());
                 msg = (Map<String, String>) obj_M_c1.readObject();

@@ -215,9 +215,8 @@ public class PainelCentral {
                         try{
                             ServerSocket SSc2_c1 = new ServerSocket(3000); // abre para enviar para C1
                             while(true){
-//                                System.out.println("\nEsperando Mensagem do C2...");
+
                                 Socket c2_c1 = SSc2_c1.accept();
-//                                System.out.println("Menssagem de C2 recebida!");
 
                                 ObjectInputStream obj_rec = new ObjectInputStream(c2_c1.getInputStream());
                                 Map<String, String> msg_c2_mw = (Map<String,String>) obj_rec.readObject();
