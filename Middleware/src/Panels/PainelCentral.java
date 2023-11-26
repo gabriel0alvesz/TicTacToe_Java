@@ -40,6 +40,9 @@ public class PainelCentral {
     private Map<String, String> inicialX = new HashMap<>();
     private Map<String, String> inicialO = new HashMap<>();
 
+    private Map<String, String> pacote_env_final1 = new HashMap<>();
+    private Map<String, String> pacote_env_final2 = new HashMap<>();
+
     private int contador = 0;
 
     public PainelCentral() {
@@ -48,7 +51,6 @@ public class PainelCentral {
         btnIniciarExpectador.setEnabled(false);
         btnSortearSimbolos.setEnabled(false);
         btnIniciarJogadores.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -111,8 +113,8 @@ public class PainelCentral {
             }
         });
 
+// -----------------> Inicia o Jogo, Middleware esta aqui!
         btnIniciarJogo.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -168,24 +170,32 @@ public class PainelCentral {
                                 Map<String, String> msg_c1_mw = (Map<String,String>) obj_rec.readObject();
 
                                 if(!msg_c1_mw.isEmpty()){
+
                                     // LOGICA PARA VERIFICAR A JOGADA
+
                                     String msg_retorno = VerificaJogada(msg_c1_mw);
 
-                                    if(contador == 8){
-                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                    // Verifica se houve Velha ou se ouve ganhador
+                                    if(Objects.equals(msg_retorno,"Deu Velha") || Objects.equals(msg_retorno,"Você Ganhou")){
 
+                                        if(Objects.equals(msg_retorno,"Deu Velha")){
+                                            pacote_env_final1.put("Velha", "Deu Velha");
+                                        }
+
+                                        if(Objects.equals(msg_retorno,"Você Ganhou")){
+                                            pacote_env_final1.put("GanhadorPerdedor", "Sim");
+                                            pacote_env_final1.put("Ganhador","C1");
+                                        }
+
+                                        PacoteFinalParaJogadores(pacote_env_final1, msg_c1_mw.get("linha"), msg_c1_mw.get("coluna"), msg_c1_mw.get("simbolo"));
+                                        JOptionPane.showMessageDialog(null, "Middleware: Fim de Jogo!");
                                         break;
                                     }
-                                    if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+
+                                    if(Objects.equals((msg_retorno), "Sua Vez")){
                                         System.out.println("\nC1 -> C2");
                                         printMatrix(Tabuleiro);
                                         Socket env = new Socket("127.0.0.1", 3001); // abre para enviar para C2
-
-                                        if(Objects.equals((msg_retorno), "Você Ganhou")){ // QUem ganhou foi o jogador 1
-                                            msg_c1_mw.put("aviso", "Você Perdeu");
-
-                                            JOptionPane.showMessageDialog(null, "O Vencedor foi o Jogador 1" );
-                                        }
 
                                         ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
                                         obj_env.flush();
@@ -201,6 +211,8 @@ public class PainelCentral {
                                 }else {
                                     System.out.println("Pacote recebido de C1 é null");
                                 }
+
+
                                 obj_rec.close();
                                 c1_c2.close();
                             }
@@ -210,7 +222,7 @@ public class PainelCentral {
                     }).start();
 
 
-// --------------------> Recebe de C2 e envia para c1
+// --------------------> Recebe de C2 e envia para C1
                     new Thread(() -> {
                         try{
                             ServerSocket SSc2_c1 = new ServerSocket(3000); // abre para enviar para C1
@@ -225,19 +237,30 @@ public class PainelCentral {
                                     // LOGICA PARA VERIFICAR A JOGADA
                                     String msg_retorno = VerificaJogada(msg_c2_mw);
 
-                                    if(contador == 8){
-                                        JOptionPane.showMessageDialog(null,"Deu Velha!, Fim de Jogo");
+                                    // Verifica se houve Velha ou se ouve ganhador
+                                    if(Objects.equals(msg_retorno,"Deu Velha") || Objects.equals(msg_retorno,"Você Ganhou")){
+
+                                        System.out.println("Entrou no envio do pacote Final");
+
+                                        if(Objects.equals(msg_retorno,"Deu Velha")){
+                                            pacote_env_final2.put("Velha", "Deu Velha");
+                                        }
+
+                                        if(Objects.equals(msg_retorno,"Você Ganhou")){
+                                            pacote_env_final2.put("GanhadorPerdedor", "Sim");
+                                            pacote_env_final2.put("Ganhador","C2");
+                                        }
+
+                                        PacoteFinalParaJogadores(pacote_env_final2, msg_c2_mw.get("linha"), msg_c2_mw.get("coluna"), msg_c2_mw.get("simbolo"));
+                                        JOptionPane.showMessageDialog(null, "Middleware: Fim de Jogo!");
+                                        break;
                                     }
 
-                                    if(Objects.equals((msg_retorno), "Sua Vez") || Objects.equals((msg_retorno), "Você Ganhou")){
+                                    if(Objects.equals((msg_retorno), "Sua Vez")){
                                         System.out.println("\nC2 -> C1");
                                         printMatrix(Tabuleiro);
-                                        Socket env = new Socket("127.0.0.1", 2001);
 
-                                        if(Objects.equals((msg_retorno), "Você Ganhou")){
-                                            msg_c2_mw.put("aviso", "Você Perdeu");
-                                            JOptionPane.showMessageDialog(null, "O Vencedor foi o Jogador 2" );
-                                        }
+                                        Socket env = new Socket("127.0.0.1", 2001);
 
                                         ObjectOutputStream obj_env = new ObjectOutputStream(env.getOutputStream());
                                         obj_env.flush();
@@ -370,6 +393,11 @@ public class PainelCentral {
             somaLinha = 0;
             somaColuna = 0;
         }
+
+        if(contador == 8){
+            return "Deu Velha";
+        }
+
         return "Sua Vez";
     }
 
@@ -382,5 +410,64 @@ public class PainelCentral {
         }
         System.out.println();
     }
+
+    private void PacoteFinalParaJogadores(Map<String, String> DadosJogadores, String linha, String coluna, String simbolo){
+        Map<String, String> pacote_env = new HashMap<>();
+
+        printHashMap(DadosJogadores);
+
+        pacote_env.put("linha", linha);
+        pacote_env.put("coluna", coluna);
+        pacote_env.put("simbolo", simbolo);
+
+        if(Objects.equals(DadosJogadores.get("Velha"),"Deu Velha")){
+            System.out.println("---> Deu Velha!");
+            pacote_env.put("AvisoFinalC1", "Deu Velha");
+            pacote_env.put("AvisoFinalC2", "Deu Velha");
+        }
+
+        if(Objects.equals(DadosJogadores.get("GanhadorPerdedor"),"Sim")){
+            System.out.println("Entrou no GanhadorPerdedor");
+            if(Objects.equals(DadosJogadores.get("Ganhador"),"C1")){
+                pacote_env.put("AvisoFinalC1", "Você Ganhou");
+                pacote_env.put("AvisoFinalC2", "Você Perdeu");
+            }else if(Objects.equals(DadosJogadores.get("Ganhador"),"C2")){
+                pacote_env.put("AvisoFinalC1", "Você Perdeu");
+                pacote_env.put("AvisoFinalC2", "Você Ganhou");
+            }
+        }
+
+        try{
+            Socket env_C1 = new Socket("127.0.0.1",2001);
+            Socket env_C2 = new Socket("127.0.0.1",3001);
+
+            ObjectOutputStream objC1 = new ObjectOutputStream(env_C1.getOutputStream());
+            ObjectOutputStream objC2 = new ObjectOutputStream(env_C2.getOutputStream());
+
+            printHashMap(pacote_env);
+
+            objC1.writeObject(pacote_env);
+            objC2.writeObject(pacote_env);
+
+
+            // Fecha tudo!
+            objC1.close();
+            objC2.close();
+            env_C1.close();
+            env_C2.close();
+        }catch (Exception ex){
+            System.out.println("Erro no envio do pacote final: " + ex.getMessage());
+        }
+
+    }
+
+    public static void printHashMap(Map<String, String> map) {
+        System.out.println("Printando a hash Final");
+        for (String chave : map.keySet()) {
+            String valor = map.get(chave);
+            System.out.println("Chave: " + chave + ", Valor: " + valor);
+        }
+    }
+
 }
 

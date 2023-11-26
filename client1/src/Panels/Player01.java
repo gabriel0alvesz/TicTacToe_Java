@@ -79,7 +79,19 @@ public class Player01 {
 
                     if(!pacote_recebimento.isEmpty()){
 
-                        if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez") || Objects.equals(pacote_recebimento.get("aviso"), "Você Perdeu")){
+                        if(Objects.equals(pacote_recebimento.get("AvisoFinalC1"), "Deu Velha") ||
+                                Objects.equals(pacote_recebimento.get("AvisoFinalC1"), "Você Ganhou") ||
+                                Objects.equals(pacote_recebimento.get("AvisoFinalC1"), "Você Perdeu")){
+
+                            MarcaJogada(pacote_recebimento);
+                            DesabilitaHabilitaBotoes(false);
+
+                            lblAviso.setText(pacote_recebimento.get("AvisoFinalC1"));
+                            JOptionPane.showMessageDialog(null, lblNomeJogador.getText() + " - " + lblAviso.getText());
+                            break;
+                        }
+
+                        if(Objects.equals(pacote_recebimento.get("aviso"), "Sua Vez")){
 
                             DesabilitaHabilitaBotoes(true);
 
@@ -92,10 +104,6 @@ public class Player01 {
                                 lblAviso.setText(pacote_recebimento.get("aviso"));
                             }
 
-                            if(Objects.equals(pacote_recebimento.get("aviso"), "Você Perdeu")){
-                                DesabilitaHabilitaBotoes(false);
-                                lblAviso.setText(pacote_recebimento.get("aviso"));
-                            }
                         }else{
                             System.out.println("Aviso enviando para C1,  não correspondente");
                         }
