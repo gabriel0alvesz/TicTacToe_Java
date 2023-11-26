@@ -8,8 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -48,7 +47,7 @@ public class PainelCentral {
     public PainelCentral() {
 
         btnIniciarJogo.setEnabled(false);
-        btnIniciarExpectador.setEnabled(false);
+//        btnIniciarExpectador.setEnabled(false);
         btnSortearSimbolos.setEnabled(false);
         btnIniciarJogadores.addActionListener(new ActionListener() {
             @Override
@@ -288,6 +287,48 @@ public class PainelCentral {
                 }else{
                     System.out.println("Erro ao Iniciar jogo");
                 }
+
+            }
+        });
+
+        // Expectador via UDP
+        btnIniciarExpectador.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                btnIniciarExpectador.setText("Iniciado!");
+                btnIniciarExpectador.revalidate();
+                btnIniciarExpectador.repaint();
+                btnIniciarExpectador.setEnabled(false);
+
+                new Thread(() -> {
+                    while(true) {
+                        try {
+                            InetAddress address = InetAddress.getByName("239.0.0.1");
+                            InetSocketAddress group = new InetSocketAddress(address, 6666);
+
+                            NetworkInterface nif = NetworkInterface.getByName("lo");
+
+                            MulticastSocket multi = new MulticastSocket(group.getPort());
+
+                            multi.joinGroup(group, nif);
+
+                            byte[] msg = new byte[256];
+                            DatagramPacket dP = new DatagramPacket(msg, msg.length);
+                            multi.receive(dP);
+
+                            String pacote_recebido = new String(dP.getData()).trim();
+
+                            String[] tokens = pacote_recebido.split(";");
+
+                            JOptionPane.showMessageDialog(null, tokens[0] + " / " + tokens[1]);
+
+                            multi.close();
+                        } catch (Exception ex) {
+                            System.out.println("Erro no cliente: " + ex.getMessage());
+                        }
+                    }
+                }).start();
             }
         });
     }
