@@ -1,10 +1,11 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.*;
 import java.util.Objects;
 
-public class ExpectadorPanel {
+public class EspectadorPanel {
     private JPanel panelExpectador;
     private JLabel lbl11;
     private JLabel lbl12;
@@ -27,12 +28,12 @@ public class ExpectadorPanel {
     private String NomeApostador;
     private String Aposta;
 
-    public ExpectadorPanel() {
+    public EspectadorPanel() {
         btnApostarX.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Aposta = "1";
-
+                btnApostarX.setBackground(Color.GRAY);
                 if(!Objects.equals(inputNomeApostador.getText(), null)){
                     NomeApostador = inputNomeApostador.getText();
                     limpaDesabilitaCampos();
@@ -50,7 +51,7 @@ public class ExpectadorPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Aposta = "-1";
-
+                btnApostarO.setBackground(Color.GRAY);
                 if(!Objects.equals(inputNomeApostador.getText(), null)){
                     NomeApostador = inputNomeApostador.getText();
                     limpaDesabilitaCampos();
@@ -68,6 +69,7 @@ public class ExpectadorPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Aposta = "#";
+                btnAssistir.setBackground(Color.GRAY);
 
                 if(!Objects.equals(inputNomeApostador.getText(), null)){
                     NomeApostador = inputNomeApostador.getText();
@@ -83,12 +85,12 @@ public class ExpectadorPanel {
             }
         });
 
-        // Recebe dados do resultado da aposta
+        // Recebe dados de atualizacao para o apostador
         new Thread(() ->{
             while(true) {
                 try {
                     InetAddress address = InetAddress.getByName("239.0.0.1");
-                    InetSocketAddress group = new InetSocketAddress(address, 6666);
+                    InetSocketAddress group = new InetSocketAddress(address, 9999);
 
                     NetworkInterface nif = NetworkInterface.getByName("lo");
 
@@ -107,10 +109,14 @@ public class ExpectadorPanel {
                     //tokens = posicao, 11, -1 ou 1
                     if(Objects.equals(tokens[0], "posicao")){
                         PreenchePainelDeJogo(tokens);
-                    }else if(Objects.equals(tokens[3], "Ganhadores")){
-                        // tokens = ome1,nome2,nome3, ..., valor_ganho
+                    }
+
+                    if(tokens.length > 3){
+
+                        // tokens = nome1,nome2,nome3, ..., valor_ganho
                         int tam_token = tokens.length - 1; // o ultimo elemento sera o valor ganho, sempre!
                         String valor = tokens[tam_token];
+                        PreenchePainelDeJogo(tokens);
 
                         if(SeraQueVoceGanhou(tokens)){
                             JOptionPane.showMessageDialog(null, "Você Ganhou! - " + valor);
@@ -131,12 +137,14 @@ public class ExpectadorPanel {
     }
 
 
-    // Enviando via UDP
+    // Enviando via UDP a aposta (Começa aqui!)
     public void EnviaAposta(String nome, String aposta){
         NomeApostador = nome;
         Aposta = aposta;
-        String pacote = nome + ";" + aposta;
+        lblApostdor.setText(NomeApostador);
 
+        lblAviso.setText("Começou, aguarde as jogadas");
+        String pacote = nome + ";" + aposta;
         try{
             byte[] msg = pacote.getBytes();
 
@@ -177,14 +185,14 @@ public class ExpectadorPanel {
         int i=1;
         switch(jogadas[i]){
             case "11" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "12" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "13" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "21" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "22" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "23" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "31" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "32" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "33" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "12" -> lbl12.setText(QualSimbolo(jogadas[i+1]));
+            case "13" -> lbl13.setText(QualSimbolo(jogadas[i+1]));
+            case "21" -> lbl21.setText(QualSimbolo(jogadas[i+1]));
+            case "22" -> lbl22.setText(QualSimbolo(jogadas[i+1]));
+            case "23" -> lbl23.setText(QualSimbolo(jogadas[i+1]));
+            case "31" -> lbl31.setText(QualSimbolo(jogadas[i+1]));
+            case "32" -> lbl32.setText(QualSimbolo(jogadas[i+1]));
+            case "33" -> lbl33.setText(QualSimbolo(jogadas[i+1]));
 
         }
     }
@@ -198,10 +206,10 @@ public class ExpectadorPanel {
         return "-";
     }
     public static void main(String[] args){
-        JFrame frame = new JFrame("Jogador 1");
-        frame.setContentPane(new ExpectadorPanel().panelExpectador);
+        JFrame frame = new JFrame("Painel do Apostador");
+        frame.setContentPane(new EspectadorPanel().panelExpectador);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        frame.setSize(400,400);
         frame.setVisible(true);
     }
 

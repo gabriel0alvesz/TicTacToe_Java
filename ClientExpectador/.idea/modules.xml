@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ClientExpectador.iml" filepath="$PROJECT_DIR$/ClientExpectador.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ClientEspectador.iml" filepath="$PROJECT_DIR$/ClientEspectador.iml" />
     </modules>
   </component>
 </project>

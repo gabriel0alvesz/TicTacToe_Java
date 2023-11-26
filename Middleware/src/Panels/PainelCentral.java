@@ -42,7 +42,11 @@ public class PainelCentral {
     private Map<String, String> pacote_env_final1 = new HashMap<>();
     private Map<String, String> pacote_env_final2 = new HashMap<>();
 
+    private Map<String,String> DadosApostadores = new HashMap<>();
+
     private int contador = 0;
+
+    private boolean jogo_comecou = false;
 
     public PainelCentral() {
 
@@ -116,11 +120,12 @@ public class PainelCentral {
         btnIniciarJogo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                jogo_comecou = true;
                 btnIniciarJogo.setText("Começou!");
                 btnIniciarJogo.revalidate();
                 btnIniciarJogo.repaint();
                 btnIniciarJogo.setEnabled(false);
+
 
                 if(!NomeJogador1.isEmpty()  && !NomeJogador2.isEmpty() && !SimboloJ1.isEmpty() && !SimboloJ2.isEmpty()){
 
@@ -187,6 +192,7 @@ public class PainelCentral {
                                         }
 
                                         PacoteFinalParaJogadores(pacote_env_final1, msg_c1_mw.get("linha"), msg_c1_mw.get("coluna"), msg_c1_mw.get("simbolo"));
+                                        atualizaJogadaParaExpectadores(msg_c1_mw.get("linha"), msg_c1_mw.get("coluna"), msg_c1_mw.get("simbolo"),true);
                                         JOptionPane.showMessageDialog(null, "Middleware: Fim de Jogo!");
                                         break;
                                     }
@@ -200,6 +206,7 @@ public class PainelCentral {
                                         obj_env.flush();
                                         obj_env.writeObject(msg_c1_mw);
 
+                                        atualizaJogadaParaExpectadores(msg_c1_mw.get("linha"), msg_c1_mw.get("coluna"), msg_c1_mw.get("simbolo"),false);
                                         // Fechando Objetos e Sockets
                                         obj_env.close();
                                         env.close();
@@ -251,6 +258,7 @@ public class PainelCentral {
                                         }
 
                                         PacoteFinalParaJogadores(pacote_env_final2, msg_c2_mw.get("linha"), msg_c2_mw.get("coluna"), msg_c2_mw.get("simbolo"));
+                                        atualizaJogadaParaExpectadores(msg_c2_mw.get("linha"), msg_c2_mw.get("coluna"), msg_c2_mw.get("simbolo"), true);
                                         JOptionPane.showMessageDialog(null, "Middleware: Fim de Jogo!");
                                         break;
                                     }
@@ -265,6 +273,7 @@ public class PainelCentral {
                                         obj_env.flush();
                                         obj_env.writeObject(msg_c2_mw);
 
+                                        atualizaJogadaParaExpectadores(msg_c2_mw.get("linha"), msg_c2_mw.get("coluna"), msg_c2_mw.get("simbolo"), false);
                                         // Fechando Objetos e Sockets
                                         obj_env.close();
                                         env.close();
@@ -301,9 +310,11 @@ public class PainelCentral {
                 btnIniciarExpectador.repaint();
                 btnIniciarExpectador.setEnabled(false);
 
+                // Recebe os dados dos apostadores
                 new Thread(() -> {
-                    while(true) {
+                    while(!jogo_comecou) {
                         try {
+
                             InetAddress address = InetAddress.getByName("239.0.0.1");
                             InetSocketAddress group = new InetSocketAddress(address, 6666);
 
@@ -320,14 +331,18 @@ public class PainelCentral {
                             String pacote_recebido = new String(dP.getData()).trim();
 
                             String[] tokens = pacote_recebido.split(";");
-
-                            JOptionPane.showMessageDialog(null, tokens[0] + " / " + tokens[1]);
+                            if(!Objects.equals(tokens[1],"#")){
+                                DadosApostadores.put(tokens[0],tokens[1]); //Nome, simbolo apostado
+                            }
+//                            System.out.println("Apostador: " + tokens[0] + " apostou no: " + tokens[1]);
 
                             multi.close();
                         } catch (Exception ex) {
                             System.out.println("Erro no cliente: " + ex.getMessage());
                         }
                     }
+
+                    System.out.println("NÃO PODE ENTRAR MAIS EXPECTADORES, o jogo começou!");
                 }).start();
             }
         });
@@ -455,8 +470,6 @@ public class PainelCentral {
     private void PacoteFinalParaJogadores(Map<String, String> DadosJogadores, String linha, String coluna, String simbolo){
         Map<String, String> pacote_env = new HashMap<>();
 
-        printHashMap(DadosJogadores);
-
         pacote_env.put("linha", linha);
         pacote_env.put("coluna", coluna);
         pacote_env.put("simbolo", simbolo);
@@ -485,11 +498,9 @@ public class PainelCentral {
             ObjectOutputStream objC1 = new ObjectOutputStream(env_C1.getOutputStream());
             ObjectOutputStream objC2 = new ObjectOutputStream(env_C2.getOutputStream());
 
-            printHashMap(pacote_env);
-
+            // Envia o pacote para ambos jogadores
             objC1.writeObject(pacote_env);
             objC2.writeObject(pacote_env);
-
 
             // Fecha tudo!
             objC1.close();
@@ -502,7 +513,7 @@ public class PainelCentral {
 
     }
 
-    public static void printHashMap(Map<String, String> map) {
+    private static void printHashMap(Map<String, String> map) {
         System.out.println("Printando a hash Final");
         for (String chave : map.keySet()) {
             String valor = map.get(chave);
@@ -510,5 +521,55 @@ public class PainelCentral {
         }
     }
 
+    private void atualizaJogadaParaExpectadores(String linha, String coluna, String simbolo, boolean ganhou){
+        String posicao = linha+coluna;
+        String msg_envio = new String("posicao;"+posicao+";"+simbolo+";");
+
+        if(ganhou){
+            msg_envio = msg_envio + "Ganhadores;";
+            msg_envio = VerificaGanhadoresEPremio(msg_envio,simbolo);
+        }
+
+        // Enviando para os espectadores
+        try{
+            byte[] msg = msg_envio.getBytes();
+
+            InetAddress address = InetAddress.getByName("239.0.0.1");
+
+            DatagramSocket ds = new DatagramSocket();
+            DatagramPacket pkg = new DatagramPacket(msg, msg.length, address, 9999);
+
+            ds.send(pkg);
+            ds.close();
+
+        }catch (Exception ex){
+            System.out.println("Erro ao enviar dados de atulização para os expectadores: " + ex.getMessage());
+        }
+    }
+
+    private String VerificaGanhadoresEPremio(String msg, String simbolo){
+
+        StringBuilder msgBuilder = new StringBuilder(msg);
+
+        int cont = 0;
+        int cont_ganhadores = 0;
+
+        for (String chave : DadosApostadores.keySet()) {
+            String valor = DadosApostadores.get(chave);
+
+            if(Objects.equals(valor, simbolo)){
+                msgBuilder.append(chave).append(";");
+                cont_ganhadores++;
+            }
+            cont++;
+        }
+
+        // Valor para cada ganhador x 1,25
+        int soma = 10*cont;
+        double valor_p_ganhador = (soma*1.25)/cont_ganhadores;
+        msgBuilder.append("R$").append(valor_p_ganhador);
+
+        return msgBuilder.toString();
+    }
 }
 
