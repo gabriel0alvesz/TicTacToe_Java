@@ -1,10 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.net.*;
 import java.util.Objects;
 
 public class ExpectadorPanel {
@@ -86,10 +83,51 @@ public class ExpectadorPanel {
             }
         });
 
-        // recebe os dados de atualização do jogo
-//        new Thread(() -> {
-//
-//        }).start();
+        // Recebe dados do resultado da aposta
+        new Thread(() ->{
+            while(true) {
+                try {
+                    InetAddress address = InetAddress.getByName("239.0.0.1");
+                    InetSocketAddress group = new InetSocketAddress(address, 6666);
+
+                    NetworkInterface nif = NetworkInterface.getByName("lo");
+
+                    MulticastSocket multi = new MulticastSocket(group.getPort());
+
+                    multi.joinGroup(group, nif);
+
+                    byte[] msg = new byte[256];
+                    DatagramPacket dP = new DatagramPacket(msg, msg.length);
+                    multi.receive(dP);
+
+                    String pacote_recebido = new String(dP.getData()).trim();
+                    String[] tokens = pacote_recebido.split(";");
+
+                    // Esta recebendo dados de atualizacao da partida
+                    //tokens = posicao, 11, -1 ou 1
+                    if(Objects.equals(tokens[0], "posicao")){
+                        PreenchePainelDeJogo(tokens);
+                    }else if(Objects.equals(tokens[3], "Ganhadores")){
+                        // tokens = ome1,nome2,nome3, ..., valor_ganho
+                        int tam_token = tokens.length - 1; // o ultimo elemento sera o valor ganho, sempre!
+                        String valor = tokens[tam_token];
+
+                        if(SeraQueVoceGanhou(tokens)){
+                            JOptionPane.showMessageDialog(null, "Você Ganhou! - " + valor);
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Você Perdeu a aposta!");
+                        }
+                        break;
+                    }
+
+
+                    multi.close();
+                } catch (Exception ex) {
+                    System.out.println("Erro no cliente: " + ex.getMessage());
+                }
+            }
+        }).start();
+
     }
 
 
@@ -123,7 +161,42 @@ public class ExpectadorPanel {
         inputNomeApostador.setEnabled(false);
     }
 
+    // Verifica se o nome do apostar esta entre os ganhadores
+    private boolean SeraQueVoceGanhou(String[] vetor_nomes){
+        boolean control = false;
+        for(String s: vetor_nomes){
+            if(s.equals(NomeApostador)){
+                control = true;
+                return control;
+            }
+        }
+        return control;
+    }
 
+    private void PreenchePainelDeJogo(String[] jogadas){
+        int i=1;
+        switch(jogadas[i]){
+            case "11" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "12" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "13" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "21" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "22" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "23" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "31" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "32" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "33" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+
+        }
+    }
+
+    private String QualSimbolo(String simb){
+        if(Objects.equals(simb, "1")){
+            return "X";
+        }else if(Objects.equals(simb, "-1")){
+            return "O";
+        }
+        return "-";
+    }
     public static void main(String[] args){
         JFrame frame = new JFrame("Jogador 1");
         frame.setContentPane(new ExpectadorPanel().panelExpectador);
@@ -131,5 +204,6 @@ public class ExpectadorPanel {
         frame.pack();
         frame.setVisible(true);
     }
+
 
 }
