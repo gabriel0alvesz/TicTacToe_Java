@@ -334,7 +334,7 @@ public class PainelCentral {
                             if(!Objects.equals(tokens[1],"#")){
                                 DadosApostadores.put(tokens[0],tokens[1]); //Nome, simbolo apostado
                             }
-//                            System.out.println("Apostador: " + tokens[0] + " apostou no: " + tokens[1]);
+                            System.out.println("Apostador: " + tokens[0] + " apostou no: " + tokens[1]);
 
                             multi.close();
                         } catch (Exception ex) {

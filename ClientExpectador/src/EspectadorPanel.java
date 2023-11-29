@@ -184,24 +184,15 @@ public class EspectadorPanel {
     private void PreenchePainelDeJogo(String[] jogadas){
         int i=1;
         switch(jogadas[i]){
-            case "11":
-                lbl11.setText(QualSimbolo(jogadas[i+1]));
-            case "12":
-                lbl12.setText(QualSimbolo(jogadas[i+1]));
-            case "13":
-                lbl13.setText(QualSimbolo(jogadas[i+1]));
-            case "21":
-                lbl21.setText(QualSimbolo(jogadas[i+1]));
-            case "22":
-                lbl22.setText(QualSimbolo(jogadas[i+1]));
-            case "23":
-                lbl23.setText(QualSimbolo(jogadas[i+1]));
-            case "31":
-                lbl31.setText(QualSimbolo(jogadas[i+1]));
-            case "32":
-                lbl32.setText(QualSimbolo(jogadas[i+1]));
-            case "33":
-                lbl33.setText(QualSimbolo(jogadas[i+1]));
+            case "11" -> lbl11.setText(QualSimbolo(jogadas[i+1]));
+            case "12" -> lbl12.setText(QualSimbolo(jogadas[i+1]));
+            case "13" -> lbl13.setText(QualSimbolo(jogadas[i+1]));
+            case "21" -> lbl21.setText(QualSimbolo(jogadas[i+1]));
+            case "22" -> lbl22.setText(QualSimbolo(jogadas[i+1]));
+            case "23" -> lbl23.setText(QualSimbolo(jogadas[i+1]));
+            case "31" -> lbl31.setText(QualSimbolo(jogadas[i+1]));
+            case "32" -> lbl32.setText(QualSimbolo(jogadas[i+1]));
+            case "33" -> lbl33.setText(QualSimbolo(jogadas[i+1]));
 
         }
     }
