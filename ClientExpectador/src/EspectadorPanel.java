@@ -92,7 +92,7 @@ public class EspectadorPanel {
                     InetAddress address = InetAddress.getByName("239.0.0.1");
                     InetSocketAddress group = new InetSocketAddress(address, 9999);
 
-                    NetworkInterface nif = NetworkInterface.getByName("lo");
+                    NetworkInterface nif = NetworkInterface.getByName("en0");
 
                     MulticastSocket multi = new MulticastSocket(group.getPort());
 

@@ -318,7 +318,7 @@ public class PainelCentral {
                             InetAddress address = InetAddress.getByName("239.0.0.1");
                             InetSocketAddress group = new InetSocketAddress(address, 6666);
 
-                            NetworkInterface nif = NetworkInterface.getByName("lo");
+                            NetworkInterface nif = NetworkInterface.getByName("en0");
 
                             MulticastSocket multi = new MulticastSocket(group.getPort());
 
