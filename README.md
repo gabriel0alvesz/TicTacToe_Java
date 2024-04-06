@@ -24,7 +24,7 @@ Start the central panel and the login panel, then click on "Iniciar Jogadores" i
 Now, start the spectator panel. In the central panel, click on "Iniciar Espectador", then in the spectator panel, enter your name and which symbol you will bet on, or none of the symbols.
 <div align="center">
    
-   ![etapa1](./assets/etapa2GIF.gif "etapa2.gif")
+   ![etapa2](./assets/etapa2GIF.gif "etapa2.gif")
  </div>
 
  #### Stage 3
@@ -32,6 +32,6 @@ Now, start the spectator panel. In the central panel, click on "Iniciar Espectad
 
  <div align="center">
    
-   ![etapa1](./assets/etapa3GIF.gif "etapa3.gif")
+   ![etapa3](./assets/etapa3GIF.gif "etapa3.gif")
  </div> 
 </div>
